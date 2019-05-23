@@ -1,0 +1,13 @@
+[Desktop Entry]
+Name=Liri
+Comment=QtQuick and Wayland based desktop environment
+Exec=@BINDIR@/liri-session -- -platform liri
+TryExec=@BINDIR@/liri-session
+Icon=start-here
+Type=Application
+
+
+# Translations
+Icon[lt]=start-here
+Name[lt]=Liri
+Comment[lt]=QtQuick ir Wayland pagrįsta darbalaukio aplinka

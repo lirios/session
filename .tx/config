@@ -1,0 +1,9 @@
+[main]
+host = https://www.transifex.com
+
+[liri-session.session-entry]
+type = DESKTOP
+source_lang = en
+source_file = src/daemon/liri.desktop.in.in
+liri_dest_file = src/daemon/liri.desktop.in
+file_filter = src/daemon/translations/liri_<lang>.desktop

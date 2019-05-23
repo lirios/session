@@ -1,0 +1,19 @@
+[Desktop Entry]
+Comment=QtQuick and Wayland based desktop environment
+Comment[da]=QtQuick- og Wayland-baseret skrivebordsmiljø
+Comment[fr]=Environnement de bureau basé sur QtQuick et Wayland
+Comment[lt]=QtQuick ir Wayland pagrįsta darbalaukio aplinka
+Comment[pl]=Środowisko graficzne oparte na QtQuick i Waylandzie
+Comment[pt_BR]=Ambiente de trabalho baseado no QtQuick e Wayland
+Comment[ru]=Среда рабочего стола, использующая QtQuick и Wayland
+Exec=@BINDIR@/liri-session -- -platform liri
+Icon=start-here
+Name=Liri
+Name[da]=Liri
+Name[fr]=Liri
+Name[lt]=Liri
+Name[pl]=Liri
+Name[pt_BR]=Liri
+Name[ru]=Liri
+TryExec=@BINDIR@/liri-session
+Type=Application

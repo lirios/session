@@ -1,0 +1,10 @@
+{
+    "Id": "io.liri.SessionManager.Modules.Autostart",
+    "Type": "SessionModule",
+    "Version": "1.0.0",
+    "Authors": [
+        "Pier Luigi Fiorini <pierluigi.fiorini@liri.io>"
+    ],
+    "License": "GPL-3.0-or-later",
+    "Website": "https://liri.io"
+}
