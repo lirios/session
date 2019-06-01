@@ -181,6 +181,25 @@ bool SessionManager::launchEntry(Liri::DesktopFile *entry)
     if (!m_session)
         return false;
 
+    if (entry->isDBusActivatable()) {
+        const auto appId = Liri::DesktopFile::id(entry->fileName().replace(QStringLiteral(".desktop"), QString()));
+        const auto dbusPath = QString(appId).replace(QLatin1Char('.'), QLatin1Char('/')).prepend(QLatin1Char('/'));
+
+        qCDebug(lcSession)
+                << "Activating" << appId << "from"
+                << entry->fileName();
+
+        auto msg = QDBusMessage::createMethodCall(appId, dbusPath,
+                                                  QStringLiteral("org.freedesktop.Application"),
+                                                  QStringLiteral("Activate"));
+        QVariantMap platformData;
+        QVariantList args;
+        args.append(platformData);
+        auto reply = QDBusConnection::sessionBus().call(msg, QDBus::BlockWithGui);
+
+        return reply.type() != QDBusMessage::ErrorMessage;
+    }
+
     QStringList args = entry->expandExecString();
     QString command = args.takeAt(0);
 
