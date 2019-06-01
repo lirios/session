@@ -181,6 +181,12 @@ bool SessionManager::launchEntry(Liri::DesktopFile *entry)
     if (!m_session)
         return false;
 
+    if (!entry->isValid())
+        return false;
+
+    if (entry->type() != Liri::DesktopFile::ApplicationType)
+        return false;
+
     if (entry->isDBusActivatable()) {
         const auto appId = Liri::DesktopFile::id(entry->fileName().replace(QStringLiteral(".desktop"), QString()));
         const auto dbusPath = QString(appId).replace(QLatin1Char('.'), QLatin1Char('/')).prepend(QLatin1Char('/'));
