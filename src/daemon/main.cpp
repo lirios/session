@@ -102,7 +102,7 @@ int main(int argc, char *argv[])
     QSharedPointer<Session> session(new Session);
 
     // Set shell arguments
-    session->setModuleArguments(QStringLiteral("shell"), shellArgs);
+    session->setModuleArguments(QStringLiteral("io.liri.SessionManager.Modules.Shell"), shellArgs);
 
     // Disable modules
     for (const auto &name : disabledModules)
