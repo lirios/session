@@ -100,17 +100,19 @@ int main(int argc, char *argv[])
 
     // Create the session manager
     QSharedPointer<Session> session(new Session);
-    QTimer::singleShot(0, [session, disabledModules, shellArgs] {
+
+    // Set shell arguments
+    session->setModuleArguments(QStringLiteral("shell"), shellArgs);
+
+    // Disable modules
+    for (const auto &name : disabledModules)
+        session->disableModule(name);
+
+    // Go
+    QTimer::singleShot(0, [session] {
         // A D-Bus session is required
         if (session->requireDBusSession())
             return;
-
-        // Disable modules
-        for (const auto &name : disabledModules)
-            session->disableModule(name);
-
-        // Set shell arguments
-        session->setModuleArguments(QStringLiteral("shell"), shellArgs);
 
         // Initialize session manager
         if (!session->initialize()) {
