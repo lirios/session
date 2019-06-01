@@ -34,7 +34,7 @@
 #include "sigwatch/sigwatch.h"
 #include "utils.h"
 
-Q_LOGGING_CATEGORY(lcSession, "liri.session")
+Q_LOGGING_CATEGORY(lcSession, "liri.session", QtInfoMsg)
 
 Q_IMPORT_PLUGIN(AutostartPlugin)
 Q_IMPORT_PLUGIN(LocalePlugin)
