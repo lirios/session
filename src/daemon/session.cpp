@@ -198,6 +198,8 @@ void Session::setEnvironment(const QString &key, const QString &value)
 
 void Session::shutdown()
 {
+    qCInfo(lcSession, "Closing session now");
+
     // Close all applications
     if (m_manager)
         m_manager->closeApplications();
@@ -205,14 +207,18 @@ void Session::shutdown()
     // Stop modules
     std::reverse(m_loadedModules.begin(), m_loadedModules.end());
     for (auto module : qAsConst(m_loadedModules)) {
-        if (!module->stop()) {
-            auto instance = dynamic_cast<QObject *>(module);
+        auto instance = dynamic_cast<QObject *>(module);
+        const auto name = m_pluginRegistry->getNameForInstance(instance);
+
+        qCInfo(lcSession, "==> Stopping session module \"%s\"",
+               qPrintable(name));
+
+        if (!module->stop())
             qCWarning(lcSession, "Failed to stop session module \"%s\"",
-                      qPrintable(m_pluginRegistry->getNameForInstance(instance)));
-        }
+                      qPrintable(name));
     }
 
-    qCInfo(lcSession, "Closing down session");
+    qCInfo(lcSession, "Quitting");
     QCoreApplication::quit();
 }
 
