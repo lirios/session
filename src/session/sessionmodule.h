@@ -44,6 +44,7 @@ public:
         EarlyInitialization,
         Initialization,
         WindowManager,
+        Daemons,
         Applications
     };
     Q_ENUM(StartupPhase)
