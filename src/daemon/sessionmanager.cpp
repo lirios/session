@@ -121,7 +121,7 @@ bool SessionManager::LaunchDesktopFile(const QString &fileName)
 
     Liri::DesktopFile *entry = Liri::DesktopFileCache::getFile(fileName);
     if (!entry) {
-        qCWarning(lcSession()) << "Failed to open desktop file" << fileName;
+        qCWarning(lcSession) << "Failed to open desktop file" << fileName;
         return false;
     }
 
