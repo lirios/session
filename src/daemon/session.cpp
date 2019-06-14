@@ -200,10 +200,6 @@ void Session::shutdown()
 {
     qCInfo(lcSession, "Closing session now");
 
-    // Close all applications
-    if (m_manager)
-        m_manager->closeApplications();
-
     // Stop modules
     std::reverse(m_loadedModules.begin(), m_loadedModules.end());
     for (auto module : qAsConst(m_loadedModules)) {

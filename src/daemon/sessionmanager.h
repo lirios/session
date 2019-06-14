@@ -25,15 +25,8 @@
 #define SESSIONMANAGER_H
 
 #include <QObject>
-#include <QMap>
-#include <QProcess>
-
-#include <LiriXdg/DesktopFile>
 
 class Session;
-
-typedef QMap<QString, QProcess *> ApplicationMap;
-typedef QMutableMapIterator<QString, QProcess *> ApplicationMapIterator;
 
 class SessionManager : public QObject
 {
@@ -44,25 +37,12 @@ public:
 
     bool registerWithDBus();
 
-    void closeApplications();
-
 public Q_SLOTS:
-    bool LaunchApplication(const QString &appId);
-    bool LaunchDesktopFile(const QString &fileName);
-    bool LaunchCommand(const QString &command);
     void SetEnvironment(const QString &key, const QString &value);
     void Logout();
 
 private:
     Session *m_session = nullptr;
-    ApplicationMap m_apps;
-
-    bool launchEntry(Liri::DesktopFile *entry);
-
-private Q_SLOTS:
-    void handleStandardOutput();
-    void handleStandardError();
-    void processFinished(int exitCode, QProcess::ExitStatus exitStatus);
 };
 
 #endif // SESSIONMANAGER_H

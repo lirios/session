@@ -1,18 +1,6 @@
 <!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN" "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
 <node>
   <interface name="io.liri.SessionManager">
-    <method name="LaunchApplication">
-      <arg type="b" direction="out"/>
-      <arg name="appId" type="s" direction="in"/>
-    </method>
-    <method name="LaunchDesktopFile">
-      <arg type="b" direction="out"/>
-      <arg name="fileName" type="s" direction="in"/>
-    </method>
-    <method name="LaunchCommand">
-      <arg type="b" direction="out"/>
-      <arg name="command" type="s" direction="in"/>
-    </method>
     <method name="SetEnvironment">
       <arg name="key" type="s" direction="in"/>
       <arg name="value" type="s" direction="in"/>

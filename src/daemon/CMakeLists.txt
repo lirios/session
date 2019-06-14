@@ -4,10 +4,6 @@ qt5_add_translation(LiriSession_QM_FILES ${LiriSession_TRANSLATIONS})
 install(FILES ${LiriSession_QM_FILES}
         DESTINATION "${INSTALL_DATADIR}/liri-session/translations")
 
-if(NOT TARGET Liri::Xdg)
-    find_package(Liri1Xdg REQUIRED)
-endif()
-
 set(LiriSession_DEFINES "")
 if(LIRI_SESSION_DEVELOPMENT_BUILD)
     list(APPEND LiriSession_DEFINES "DEVELOPMENT_BUILD")
@@ -54,7 +50,6 @@ liri_add_executable(LiriSession
     LIBRARIES
         Qt5::Core
         Qt5::DBus
-        Liri::Xdg
         Liri::Session
         autostart
         locale
