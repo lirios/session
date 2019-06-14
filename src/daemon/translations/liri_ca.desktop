@@ -8,6 +8,6 @@ Type=Application
 
 
 # Translations
-Icon[fr]=start-here
-Name[fr]=Liri
-Comment[fr]=Environnement de bureau basé sur QtQuick et sur Wayland
+Icon[ca]=comença-ací
+Name[ca]=Liri
+Comment[ca]=Entorn d'escriptori basat en QtQuick  Wayland
