@@ -35,3 +35,10 @@ travis_start "install"
 msg "Install..."
 make install
 travis_end "install"
+
+# Package
+travis_start "package"
+msg "Package..."
+mkdir -p artifacts
+tar czf artifacts/session-artifacts.tar.gz -T install_manifest.txt
+travis_end "package"

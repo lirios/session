@@ -11,6 +11,8 @@ services:
 
 env:
   global:
+    # DEPLOY_USER
+    - secure: "VBOaWLvYdPH9E2zD6CT2dLG0ZozgH+GgE0N2dOey5fXcaDajGLFKGNls1sHwUNY6w3KFGBNkCgaWC9lLKsLFK5ClBXfQLqcjNtUbq6CCZwY/3JUspIUnR/dY1SFgPGMQm08cJmezt/X1EfFztYL+RuWNskwoW+SnS8s7IHT3l1UgUM84y2B3bH5789pPPOAZcQkBhhS0vfR1uEsFVhnEAPaDGccPT9QR6Ps4/xVI0z2w4IZWMb0A//rV+8aNt8zfmAkVJ9iokJarG93k2HihX8N+VMPJdrrSjpmmhg+VaZNEwZbsIEnRHuJukdxtq3GGHcjjUri9YdyfQ1kYOeaPk0HoHk+2FJ/mBnkGtHlRAl4OIzZ2K2lY8cF7T0aBvr1YN2KnS236ykZs+vCeFU1lwi8mJqKKupgMI2TWIz75/oFBPAPUQ5jHDmX3s12ETKYTaOr/NdLchYyMPi15Ip6LqeGEc7c+k48rPg0EoCv8Gx02HTAJqs8ayaPqQiDv5N5bMoRZY7aNwc1Yu9agv10gxiuMZpDxDYRSC2QR/7avZtm7ghouwAiGlgMaiHZ+1rFMa2l8ZKxPlOMDbg/VopO7cMu3XRHMnqFI3JiEnAGv6iDw3q32LYKWCRMbYOfTItnGoqihLyrw5ZQ+hUwazru5hSiK2VaSKCc7cwVknm4F7KA="
     # DEPLOY_HOST
     - secure: "ozKB1SqUXNy/QEC3wkeRvYRpWwLTmehLciwXpuo0NdtPRgV8Nti99jLan8VdOnVXLEK1lpZaojAthJa5DDZBsm2gEeFGuWGzWi4wKf5OccKTTgtV1JOE0kZvnKQgaRZ2wNbIJ5QiYsaTjGJJ9V7h7wj595nGjklmZ86FcRo8aZbeMXoxJDjeQeQj1x7yZKMvRAyQ4cCtl9kgqlwnFOlbcScNBGkDUAN+dk/x6lgeOgN4PYZJi2k+71DS568Nil8KanAzRupiieh4SnCVIsL2CY0c06jXocLmEi8UZtsOIvdO7Y1EPZScHqw6b773ZiWBlATpna644m2A75rNq8IhazDhKqVNMXT0hKV3b/RkUOOzIesTF0xcvtzyEI7PsFckeAJf0nBsWnjwDZt8iuAEv8KXJ1lpVlA7OqVT6Ai2Omj21yRZD5PfXxyOwTsr5wrhuShqPA9sDhM2UYwm73R2cCf4wM0wLbfpvRA6pJ+agYFhuZWkniUfqTbiOPEkgUT8NaDPx7vFcYi2+BphIWbx2dJCMpChs04XdOc7lLCR8c2cRVhZdXvaWAQ1C3MsBubp1RYWav3eTYALA0fUY8wdjPIiHy+6+8fYI6l8y9lUdcl8fNBxe/ibhKMmoFQ93whijV0I/LUvXY6ICmlwo+NFp3fN0lcHRBNl54fkvnc/FLY="
 
@@ -21,6 +23,20 @@ branches:
 script:
   - wget -c https://raw.githubusercontent.com/lirios/infra-travis/master/run
   - bash run ./.travis/build.sh
+
+deploy:
+  - provider: script
+    script: .travis/deploy.sh build/artifacts/session-artifacts.tar.gz
+    skip_cleanup: true
+    on:
+      branch: master
+      condition: "$CC = gcc) && ($TRAVIS_PULL_REQUEST = false"
+  - provider: script
+    script: .travis/deploy.sh build/artifacts/session-artifacts.tar.gz
+    skip_cleanup: true
+    on:
+      branch: develop
+      condition: "$CC = gcc) && ($TRAVIS_PULL_REQUEST = false"
 
 notifications:
   email: false
