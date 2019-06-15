@@ -81,6 +81,8 @@ bool ShellPlugin::start(const QStringList &args)
     QMap<QString, QString> sessionEnv = environment();
     for (it = sessionEnv.begin(); it != sessionEnv.end(); ++it)
         env.insert(it.key(), it.value());
+    env.remove(QStringLiteral("QT_QPA_PLATFORM"));
+    env.remove(QStringLiteral("QT_WAYLAND_SHELL_INTEGRATION"));
     m_process->setProcessEnvironment(env);
 
     // Run with retries
