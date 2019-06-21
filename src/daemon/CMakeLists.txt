@@ -53,6 +53,7 @@ liri_add_executable(LiriSession
         Liri::Session
         autostart
         locale
+        services
         shell
 )
 

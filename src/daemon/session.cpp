@@ -38,6 +38,7 @@ Q_LOGGING_CATEGORY(lcSession, "liri.session", QtInfoMsg)
 
 Q_IMPORT_PLUGIN(AutostartPlugin)
 Q_IMPORT_PLUGIN(LocalePlugin)
+Q_IMPORT_PLUGIN(ServicesPlugin)
 Q_IMPORT_PLUGIN(ShellPlugin)
 
 Session::Session(QObject *parent)
