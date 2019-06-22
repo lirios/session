@@ -44,6 +44,10 @@ public:
     bool start(const QStringList &args = QStringList()) override;
     bool stop() override;
 
+protected:
+    void environmentVariableSet(const QString &key, const QString &value) override;
+    void environmentVariableUnset(const QString &key) override;
+
 private:
     QVector<uint> m_pids;
 

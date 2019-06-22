@@ -56,12 +56,25 @@ void SessionModule::setEnvironment(const QString &key, const QString &value)
 {
     Q_D(SessionModule);
     d->environment[key] = value;
+    environmentVariableSet(key, value);
 }
 
 void SessionModule::unsetEnvironment(const QString &key)
 {
     Q_D(SessionModule);
     d->environment.remove(key);
+    environmentVariableUnset(key);
+}
+
+void SessionModule::environmentVariableSet(const QString &key, const QString &value)
+{
+    Q_UNUSED(key)
+    Q_UNUSED(value)
+}
+
+void SessionModule::environmentVariableUnset(const QString &key)
+{
+    Q_UNUSED(key)
 }
 
 } // namespace Liri

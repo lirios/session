@@ -87,6 +87,20 @@ void ProcessLauncher::run()
                   qPrintable(bus.lastError().message()));
 }
 
+void ProcessLauncher::SetEnvironment(const QString &key, const QString &value)
+{
+    qCDebug(lcLauncher, "Setting environment variable %s=\"%s\"",
+            qPrintable(key), qPrintable(value));
+    m_env.insert(key, value);
+}
+
+void ProcessLauncher::UnsetEnvironment(const QString &key)
+{
+    qCDebug(lcLauncher, "Unsetting environment variable %s",
+            qPrintable(key));
+    m_env.remove(key);
+}
+
 bool ProcessLauncher::LaunchApplication(const QString &appId)
 {
     if (appId.isEmpty())

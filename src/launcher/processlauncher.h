@@ -40,6 +40,9 @@ public:
 
     void run();
 
+    Q_SCRIPTABLE void SetEnvironment(const QString &key, const QString &value);
+    Q_SCRIPTABLE void UnsetEnvironment(const QString &key);
+
     Q_SCRIPTABLE bool LaunchApplication(const QString &appId);
     Q_SCRIPTABLE bool LaunchDesktopFile(const QString &path, const QStringList &urls = QStringList());
     Q_SCRIPTABLE bool LaunchCommand(const QString &command);

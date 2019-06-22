@@ -65,6 +65,10 @@ public:
 Q_SIGNALS:
     void environmentChangeRequested(const QString &key, const QString &value);
 
+protected:
+    virtual void environmentVariableSet(const QString &key, const QString &value);
+    virtual void environmentVariableUnset(const QString &key);
+
 private:
     SessionModulePrivate *const d_ptr;
 };

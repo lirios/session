@@ -22,6 +22,7 @@
  ***************************************************************************/
 
 #include <QDBusConnectionInterface>
+#include <QDBusMessage>
 
 #include "plugin.h"
 
@@ -61,6 +62,28 @@ bool ServicesPlugin::stop()
     }
 
     return true;
+}
+
+void ServicesPlugin::environmentVariableSet(const QString &key, const QString &value)
+{
+    auto msg = QDBusMessage::createMethodCall(
+                QStringLiteral("io.liri.Launcher"),
+                QStringLiteral("/io/liri/Launcher"),
+                QStringLiteral("io.liri.Launcher"),
+                QStringLiteral("SetEnvironment"));
+    msg.setArguments(QVariantList() << key << value);
+    QDBusConnection::sessionBus().send(msg);
+}
+
+void ServicesPlugin::environmentVariableUnset(const QString &key)
+{
+    auto msg = QDBusMessage::createMethodCall(
+                QStringLiteral("io.liri.Launcher"),
+                QStringLiteral("/io/liri/Launcher"),
+                QStringLiteral("io.liri.Launcher"),
+                QStringLiteral("UnsetEnvironment"));
+    msg.setArguments(QVariantList() << key);
+    QDBusConnection::sessionBus().send(msg);
 }
 
 void ServicesPlugin::startService(const QString &name)
