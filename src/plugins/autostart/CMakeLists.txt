@@ -12,6 +12,7 @@ liri_add_plugin(autostart
         QT_NO_CAST_FROM_ASCII
         QT_NO_FOREACH
     LIBRARIES
+        Qt5::DBus
         Liri::Session
         Liri::Xdg
     STATIC

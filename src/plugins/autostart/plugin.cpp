@@ -21,7 +21,11 @@
  * $END_LICENSE$
  ***************************************************************************/
 
+#include <QDBusConnection>
+#include <QDBusMessage>
+
 #include <LiriXdg/AutoStart>
+#include <LiriXdg/DesktopFile>
 
 #include "plugin.h"
 
@@ -54,8 +58,9 @@ bool AutostartPlugin::start(const QStringList &args)
         //if (!entry.isSuitable(true, QLatin1String("GNOME")) && !entry.isSuitable(true, QLatin1String("KDE")))
         //continue;
 
-        qCDebug(lcSession) << "Autostart:" << entry.name() << "from" << entry.fileName();
-        launchEntry(entry);
+        qCDebug(lcSession) << "Autostart entry:" << entry.name() << "from" << entry.fileName();
+        m_desktopFiles.append(entry.fileName());
+        launchDesktopFile(entry.fileName());
     }
 
     return true;
@@ -63,101 +68,40 @@ bool AutostartPlugin::start(const QStringList &args)
 
 bool AutostartPlugin::stop()
 {
-    std::reverse(m_processes.begin(), m_processes.end());
+    std::reverse(m_desktopFiles.begin(), m_desktopFiles.end());
 
-    for (auto process : qAsConst(m_processes)) {
-        process->terminate();
-        if (!process->waitForFinished())
-            process->kill();
+    for (const auto &fileName : m_desktopFiles) {
+        qCDebug(lcSession) << "Terminate autostart entry from" << fileName;
+        terminateDesktopFile(fileName);
     }
+
+    m_desktopFiles.clear();
 
     return true;
 }
 
-bool AutostartPlugin::launchEntry(const Liri::DesktopFile &entry)
+void AutostartPlugin::launchDesktopFile(const QString &fileName)
 {
-    QStringList args = entry.expandExecString();
-    QString command = args.takeAt(0);
-
-    qCDebug(lcSession)
-            << "Launching" << entry.expandExecString().join(QStringLiteral(" "))
-            << "from" << entry.fileName();
-
-    QProcessEnvironment env;
-    QMap<QString, QString>::iterator it;
-    QMap<QString, QString> sessionEnv = environment();
-    for (it = sessionEnv.begin(); it != sessionEnv.end(); ++it)
-        env.insert(it.key(), it.value());
-
-    // Applications should always see this is a Wayland session,
-    // however we don't want to set this for liri-shell otherwise it
-    // would interfere with its autodetection, so we put it here
-    env.insert(QStringLiteral("XDG_SESSION_TYPE"), QStringLiteral("wayland"));
-
-    QProcess *process = new QProcess(this);
-    process->setProgram(command);
-    process->setArguments(args);
-    process->setProcessEnvironment(env);
-    process->setProcessChannelMode(QProcess::ForwardedChannels);
-    connect(process, &QProcess::readyReadStandardOutput,
-            this, &AutostartPlugin::handleStandardOutput);
-    connect(process, &QProcess::readyReadStandardError,
-            this, &AutostartPlugin::handleStandardError);
-    connect(process, &QProcess::started,
-            this, &AutostartPlugin::processStarted);
-    connect(process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-            this, &AutostartPlugin::processFinished);
-    m_processes.append(process);
-    if (!process->startDetached()) {
-        qCWarning(lcSession, "Failed to launch \"%s\" (%s)",
-                  qPrintable(entry.fileName()),
-                  qPrintable(entry.name()));
-        return false;
-    }
-
-    return true;
+    auto msg = QDBusMessage::createMethodCall(
+                QStringLiteral("io.liri.Launcher"),
+                QStringLiteral("/io/liri/Launcher"),
+                QStringLiteral("io.liri.Launcher"),
+                QStringLiteral("LaunchDesktopFile"));
+    QVariantList args;
+    args.append(fileName);
+    msg.setArguments(args);
+    QDBusConnection::sessionBus().send(msg);
 }
 
-void AutostartPlugin::handleStandardOutput()
+void AutostartPlugin::terminateDesktopFile(const QString &fileName)
 {
-    QProcess *process = qobject_cast<QProcess *>(sender());
-    if (!process)
-        return;
-
-    qInfo() << process->readAllStandardOutput();
-}
-
-void AutostartPlugin::handleStandardError()
-{
-    QProcess *process = qobject_cast<QProcess *>(sender());
-    if (!process)
-        return;
-
-    qCritical() << process->readAllStandardError();
-}
-
-void AutostartPlugin::processStarted()
-{
-    QProcess *process = qobject_cast<QProcess *>(sender());
-    if (!process)
-        return;
-
-    qCDebug(lcSession, "Launched \"%s\" with pid %lld",
-            qPrintable(process->program()),
-            process->pid());
-}
-
-void AutostartPlugin::processFinished(int exitCode, QProcess::ExitStatus exitStatus)
-{
-    Q_UNUSED(exitStatus)
-
-    QProcess *process = qobject_cast<QProcess *>(sender());
-    if (!process)
-        return;
-
-    if (m_processes.contains(process)) {
-        qCDebug(lcSession, "Program \"%s\" (pid %lld) finished with exit code %d",
-                qPrintable(process->program()), process->pid(), exitCode);
-        m_processes.removeOne(process);
-    }
+    auto msg = QDBusMessage::createMethodCall(
+                QStringLiteral("io.liri.Launcher"),
+                QStringLiteral("/io/liri/Launcher"),
+                QStringLiteral("io.liri.Launcher"),
+                QStringLiteral("TerminateDesktopFile"));
+    QVariantList args;
+    args.append(fileName);
+    msg.setArguments(args);
+    QDBusConnection::sessionBus().send(msg);
 }

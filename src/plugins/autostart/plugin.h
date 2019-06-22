@@ -26,9 +26,7 @@
 
 #include <QLoggingCategory>
 #include <QObject>
-#include <QProcess>
 
-#include <LiriXdg/DesktopFile>
 #include <LiriSession/SessionModule>
 
 Q_DECLARE_LOGGING_CATEGORY(lcSession)
@@ -47,15 +45,10 @@ public:
     bool stop() override;
 
 private:
-    QVector<QProcess *> m_processes;
+    QStringList m_desktopFiles;
 
-    bool launchEntry(const Liri::DesktopFile &entry);
-
-private Q_SLOT:
-    void handleStandardOutput();
-    void handleStandardError();
-    void processStarted();
-    void processFinished(int exitCode, QProcess::ExitStatus exitStatus);
+    void launchDesktopFile(const QString &fileName);
+    void terminateDesktopFile(const QString &fileName);
 };
 
 #endif // AUTOSTARTPLUGIN_H
