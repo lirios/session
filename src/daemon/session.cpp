@@ -184,6 +184,9 @@ bool Session::start()
                 shutdown();
                 return false;
             }
+
+            // Propagate environment variables to D-Bus activate services
+            QProcess::startDetached(QLatin1String("dbus-update-activation-environment --systemd --all"));
         }
     }
 
