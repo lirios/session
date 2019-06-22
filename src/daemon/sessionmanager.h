@@ -39,6 +39,7 @@ public:
 
 public Q_SLOTS:
     void SetEnvironment(const QString &key, const QString &value);
+    void UnsetEnvironment(const QString &key);
     void Logout();
 
 private:

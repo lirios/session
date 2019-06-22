@@ -200,6 +200,13 @@ void Session::setEnvironment(const QString &key, const QString &value)
     m_env[key] = value;
 }
 
+void Session::unsetEnvironment(const QString &key)
+{
+    qCDebug(lcSession, "Unsetting environment variable %s",
+            qPrintable(key));
+    m_env.remove(key);
+}
+
 void Session::shutdown()
 {
     qCInfo(lcSession, "Closing session now");

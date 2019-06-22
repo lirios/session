@@ -73,6 +73,12 @@ void SessionManager::SetEnvironment(const QString &key, const QString &value)
         m_session->setEnvironment(key, value);
 }
 
+void SessionManager::UnsetEnvironment(const QString &key)
+{
+    if (m_session)
+        m_session->unsetEnvironment(key);
+}
+
 void SessionManager::Logout()
 {
     if (m_session)
