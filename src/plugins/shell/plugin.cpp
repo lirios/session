@@ -95,7 +95,7 @@ bool ShellPlugin::start(const QStringList &args)
             // service is up, that is when the shell is really up and running
             QTimer::singleShot(30 * 1000, m_loop, &QEventLoop::quit);
             m_loop->exec();
-            return true;
+            return m_process->state() == QProcess::Running;
         } else {
             if (retries == 0)
                 qCWarning(lcSession, "Failed to start liri-shell, giving up!");
@@ -152,13 +152,15 @@ void ShellPlugin::processCrashed(QProcess::ProcessError error)
         qCWarning(lcSession,
                   "Failed to start \"%s\": check if liri-shell is installed correctly",
                   qPrintable(m_process->program()));
+        m_loop->quit();
         break;
     case QProcess::Crashed:
         qCWarning(lcSession,
                   "Program \"%s\" just crashed", qPrintable(m_process->program()));
+        m_loop->quit();
         if (m_process->state() == QProcess::NotRunning && !m_stopping) {
             if (m_watchDogCounter-- > 0)
-                start();
+                m_process->start();
         }
         break;
     case QProcess::UnknownError:
