@@ -30,6 +30,7 @@
 
 #include <libsigwatch/sigwatch.h>
 
+#include "dbus/screensaver.h"
 #include "diagnostics.h"
 #include "gitsha1.h"
 #include "pluginregistry.h"
@@ -50,6 +51,7 @@ Q_DECLARE_METATYPE(EnvMap)
 
 Session::Session(QObject *parent)
     : QObject(parent)
+    , m_screenSaver(new ScreenSaver(this))
     , m_manager(new SessionManager(this))
     , m_pluginRegistry(new PluginRegistry(this))
 {
@@ -137,6 +139,8 @@ bool Session::initialize()
     qInfo("%s", qPrintable(Diagnostics::systemInformation().trimmed()));
 
     // Register D-Bus objects
+    if (!m_screenSaver->registerWithDBus())
+        return false;
     if (!m_manager->registerWithDBus())
         return false;
 

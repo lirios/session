@@ -26,10 +26,16 @@ if(LIRI_ENABLE_SYSTEMD)
     list(APPEND DEFINES "ENABLE_SYSTEMD")
 endif()
 
+if(NOT TARGET Liri::Logind)
+    find_package(Liri1Logind)
+endif()
+
 liri_add_executable(LiriSession
     OUTPUT_NAME
         "liri-session"
     SOURCES
+        dbus/screensaver.cpp
+        dbus/screensaver.h
         diagnostics.cpp
         diagnostics.h
         main.cpp
@@ -59,6 +65,7 @@ liri_add_executable(LiriSession
         Qt5::DBus
         Sigwatch
         Liri::Session
+        Liri::Logind
         autostart
         services
         shell
