@@ -89,6 +89,17 @@ void ServicesPlugin::environmentVariableUnset(const QString &key)
 void ServicesPlugin::startService(const QString &name)
 {
     auto interface = QDBusConnection::sessionBus().interface();
+
+    // Check if the service is already registered
+    auto existsReply = interface->isServiceRegistered(name);
+    if (existsReply.isValid() && existsReply.value()) {
+        auto pidReply = interface->servicePid(name);
+        if (pidReply.isValid())
+            m_pids.append(pidReply.value());
+        return;
+    }
+
+    // If not, start the service
     auto reply = interface->startService(name);
     if (reply.isValid()) {
         auto pidReply = interface->servicePid(name);
