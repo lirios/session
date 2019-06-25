@@ -186,7 +186,7 @@ bool Session::start()
             }
 
             // Propagate environment variables to D-Bus activate services
-            QProcess::startDetached(QLatin1String("dbus-update-activation-environment --systemd --all"));
+            QProcess::startDetached(QStringLiteral("dbus-update-activation-environment --systemd --all"));
         }
     }
 
@@ -234,7 +234,8 @@ void Session::extendSessionEnvironment()
     // We need to pass all our environment variables to children
     // otherwise not everything will work
     auto systemEnv = QProcessEnvironment::systemEnvironment();
-    for (const auto &key : systemEnv.keys())
+    const auto keys = systemEnv.keys();
+    for (const auto &key : keys)
         m_env[key] = systemEnv.value(key);
 }
 

@@ -60,7 +60,8 @@ QString PluginRegistry::getNameForInstance(QObject *instance) const
 void PluginRegistry::discover()
 {
     // Find static plugins first
-    for (QStaticPlugin staticPlugin : QPluginLoader::staticPlugins()) {
+    const auto staticPlugins = QPluginLoader::staticPlugins();
+    for (QStaticPlugin staticPlugin : staticPlugins) {
         const auto json = staticPlugin.metaData().toVariantMap();
         addPlugin(staticPlugin.instance(), json);
     }

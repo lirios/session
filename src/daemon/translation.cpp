@@ -50,7 +50,7 @@ void loadAppTranslations()
     QString locale = QLocale::system().name();
 
     // Find the translations directory
-    const QString path = QLatin1String("liri-session/translations");
+    const QString path = QStringLiteral("liri-session/translations");
     const QString translationsDir =
             QStandardPaths::locate(QStandardPaths::GenericDataLocation,
                                    path,

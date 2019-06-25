@@ -43,7 +43,8 @@ bool AutostartPlugin::start(const QStringList &args)
 {
     Q_UNUSED(args)
 
-    for (const Liri::DesktopFile &entry : Liri::AutoStart::desktopFileList()) {
+    const auto desktopFileList = Liri::AutoStart::desktopFileList();
+    for (const Liri::DesktopFile &entry : desktopFileList) {
         // Ignore hidden entries
         if (!entry.isVisible())
             continue;
@@ -70,7 +71,7 @@ bool AutostartPlugin::stop()
 {
     std::reverse(m_desktopFiles.begin(), m_desktopFiles.end());
 
-    for (const auto &fileName : m_desktopFiles) {
+    for (const auto &fileName : qAsConst(m_desktopFiles)) {
         qCDebug(lcSession) << "Terminate autostart entry from" << fileName;
         terminateDesktopFile(fileName);
     }
