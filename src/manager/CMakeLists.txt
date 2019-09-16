@@ -6,6 +6,7 @@ install(FILES ${QM_FILES}
 
 # Defines
 set(DEFINES "")
+
 if(LIRI_SESSION_DEVELOPMENT_BUILD)
     list(APPEND DEFINES "DEVELOPMENT_BUILD")
 endif()
@@ -21,6 +22,10 @@ endif()
 include(LiriCreateGitHeadRevisionFile)
 liri_create_git_head_revision_file("gitsha1.h")
 
+if(LIRI_ENABLE_SYSTEMD)
+    list(APPEND DEFINES "ENABLE_SYSTEMD")
+endif()
+
 liri_add_executable(LiriSession
     OUTPUT_NAME
         "liri-session"
@@ -34,6 +39,8 @@ liri_add_executable(LiriSession
         session.h
         sessionmanager.cpp
         sessionmanager.h
+        systemdmanager.cpp
+        systemdmanager.h
         translation.cpp
         translation.h
         utils.cpp
@@ -55,6 +62,20 @@ liri_add_executable(LiriSession
         autostart
         services
         shell
+)
+
+liri_add_executable(LiriSessionCtl
+    OUTPUT_NAME
+        "liri-session-ctl"
+    SOURCES
+        session-ctl.cpp
+    DEFINES
+        QT_NO_CAST_FROM_ASCII
+        QT_NO_FOREACH
+        VERSION="${PROJECT_VERSION}"
+    LIBRARIES
+        Qt5::Core
+        Qt5::DBus
 )
 
 if(IS_ABSOLUTE "${INSTALL_BINDIR}")

@@ -11,6 +11,10 @@ else()
     set(PLUGINSDIR "${CMAKE_INSTALL_PREFIX}/${INSTALL_PLUGINSDIR}")
 endif()
 
+if(LIRI_ENABLE_SYSTEMD)
+    list(APPEND DEFINES "ENABLE_SYSTEMD")
+endif()
+
 liri_add_executable(LiriDaemon
     OUTPUT_NAME
         "liri-daemon"

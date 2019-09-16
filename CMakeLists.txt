@@ -21,9 +21,14 @@ include(LiriSetup)
 ## Features:
 option(LIRI_SESSION_DEVELOPMENT_BUILD "Development build" OFF)
 add_feature_info("Session::DevelopmentBuild" LIRI_SESSION_DEVELOPMENT_BUILD "Build for development")
+option(LIRI_ENABLE_SYSTEMD "Enable systemd support" ON)
+add_feature_info("Liri::Systemd" LIRI_ENABLE_SYSTEMD "Enable systemd support")
 
 ## Variables:
-set(INSTALL_SYSTEMDUSERUNITDIR "${INSTALL_LIBDIR}/systemd/user" CACHE PATH "systemd user unit directory [PREFIX/lib/systemd/user]")
+if(LIRI_ENABLE_SYSTEMD)
+    set(INSTALL_SYSTEMDUSERUNITDIR "${INSTALL_LIBDIR}/systemd/user" CACHE PATH "systemd user unit directory [PREFIX/lib/systemd/user]")
+    set(INSTALL_SYSTEMDUSERGENERATORSDIR "${INSTALL_LIBDIR}/systemd/user-generators" CACHE PATH "systemd user generators directory [PREFIX/lib/systemd/user-generators]")
+endif()
 
 ## Find Qt 5:
 find_package(Qt5 "${QT_MIN_VERSION}"
@@ -49,3 +54,7 @@ add_subdirectory(src/plugins/daemon/locale)
 add_subdirectory(src/plugins/session/autostart)
 add_subdirectory(src/plugins/session/services)
 add_subdirectory(src/plugins/session/shell)
+if(LIRI_ENABLE_SYSTEMD)
+    add_subdirectory(data/systemd)
+    add_subdirectory(src/generators)
+endif()

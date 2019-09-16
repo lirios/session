@@ -1,0 +1,10 @@
+[Unit]
+Description=Session services to run before the Liri graphical user session starts
+StopWhenUnneeded=yes
+PartOf=liri-session.target
+BindsTo=graphical-session-pre.target
+Requires=liri-services.target liri-daemons.target
+After=liri-services.target liri-daemons.target
+# Never manually start or stop
+RefuseManualStart=yes
+RefuseManualStop=yes

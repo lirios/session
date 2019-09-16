@@ -40,7 +40,9 @@ You can also append the following options to the `cmake` command:
 
  * `-DLIRI_SESSION_DEVELOPMENT_BUILD:BOOL=ON`: Remove restrictions that gets in your
    way during development, such as ptrace being forbidden.
+ * `-DLIRI_ENABLE_SYSTEMD:BOOL=OFF`: Disable systemd support.
  * `-DINSTALL_SYSTEMDUSERUNITDIR=/path/to/systemd/user`: Path to install systemd user units (default: `/usr/local/lib/systemd/user`).
+ * `-DINSTALL_SYSTEMDUSERGENERATORSDIR=/path/to/systemd/user-generators`: Path to install systemd user generators (default: `/usr/local/lib/systemd/user-generators`).
 
 ## Licensing
 

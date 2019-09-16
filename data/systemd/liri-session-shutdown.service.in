@@ -1,0 +1,7 @@
+[Unit]
+Description=Trigger shutdown of a Liri session
+CollectMode=inactive-or-failed
+
+[Service]
+Type=oneshot
+ExecStart=@ABSOLUTE_BINDIR@/liri-session-ctl --logout

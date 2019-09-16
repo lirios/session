@@ -56,6 +56,7 @@ private:
 
 private Q_SLOTS:
     void handleServiceRegistered(const QString &serviceName);
+    void handleServiceUnregistered(const QString &serviceName);
     void handleStandardOutput();
     void handleStandardError();
     void processCrashed(QProcess::ProcessError error);

@@ -38,10 +38,13 @@ ShellPlugin::ShellPlugin(QObject *parent)
 
     m_serviceWatcher =
             new QDBusServiceWatcher(shellServiceName, QDBusConnection::sessionBus(),
-                                    QDBusServiceWatcher::WatchForRegistration,
+                                    QDBusServiceWatcher::WatchForRegistration |
+                                    QDBusServiceWatcher::WatchForUnregistration,
                                     this);
     connect(m_serviceWatcher, &QDBusServiceWatcher::serviceRegistered,
             this, &ShellPlugin::handleServiceRegistered);
+    connect(m_serviceWatcher, &QDBusServiceWatcher::serviceUnregistered,
+            this, &ShellPlugin::handleServiceUnregistered);
 
     m_process = new QProcess(this);
     m_process->setProcessChannelMode(QProcess::ForwardedChannels);
@@ -128,6 +131,18 @@ void ShellPlugin::handleServiceRegistered(const QString &serviceName)
         // The shell D-Bus service is registered, this means it's ready
         // and we can move on to the next session module
         m_loop->quit();
+    }
+}
+
+void ShellPlugin::handleServiceUnregistered(const QString &serviceName)
+{
+    if (serviceName == shellServiceName) {
+        // We don't need to list for this signal
+        disconnect(m_serviceWatcher, &QDBusServiceWatcher::serviceUnregistered,
+                   this, &ShellPlugin::handleServiceUnregistered);
+
+        // Can't continue without the display server
+        Q_EMIT shutdownRequested();
     }
 }
 

@@ -1,0 +1,9 @@
+[Unit]
+Description=Service that launches programs with the correct environment
+PartOf=liri-services.target
+
+[Service]
+Type=dbus
+ExecStart=@ABSOLUTE_LIBEXECDIR@/liri-launcher
+BusName=io.liri.Launcher
+Restart=on-failure

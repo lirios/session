@@ -48,7 +48,7 @@ ProcessLauncher::ProcessLauncher(QObject *parent)
     qputenv("QT_QPA_PLATFORM", "wayland");
 #endif
     qputenv("QT_QPA_PLATFORMTHEME", "liri");
-    qputenv("QT_WAYLAND_SHELL_INTEGRATION", "xdg-shell-v6");
+    qputenv("QT_WAYLAND_SHELL_INTEGRATION", "wl-shell");
     qputenv("QT_QUICK_CONTROLS_1_STYLE", "Flat");
     qputenv("QT_QUICK_CONTROLS_STYLE", "material");
     qputenv("QT_WAYLAND_DECORATION", "material");

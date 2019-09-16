@@ -1,0 +1,9 @@
+[Unit]
+Description=Change locale environment variables from the settings
+PartOf=liri-daemons.target
+
+[Service]
+Type=dbus
+ExecStart=@ABSOLUTE_LIBEXECDIR@/liri-daemon --module=locale
+BusName=io.liri.Daemon.Modules.Locale
+Restart=on-failure

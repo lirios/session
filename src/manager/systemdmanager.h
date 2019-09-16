@@ -3,44 +3,46 @@
  *
  * Copyright (C) 2019 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
  *
- * $BEGIN_LICENSE:LGPLv3+$
+ * $BEGIN_LICENSE:GPL3+$
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
+ * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public License
+ * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * $END_LICENSE$
  ***************************************************************************/
 
-#include "daemonmodule.h"
+#ifndef SYSTEMDMANAGER_H
+#define SYSTEMDMANAGER_H
 
-namespace Liri {
+#include <QObject>
 
-class DaemonModulePrivate
+class QProcessEnvironment;
+
+class SystemdManager : public QObject
 {
+    Q_OBJECT
+    Q_PROPERTY(bool available READ isAvailable CONSTANT)
 public:
-    DaemonModulePrivate() {}
+    explicit SystemdManager(QObject *parent = nullptr);
+
+    bool isAvailable() const;
+
+    bool loadUnit(const QString &name);
+    bool startUnit(const QString &name, const QString &mode);
+    bool stopUnit(const QString &name, const QString &mode);
+
+private:
+    bool m_available = false;
 };
 
-DaemonModule::DaemonModule(QObject *parent)
-    : QObject(parent)
-    , d_ptr(new DaemonModulePrivate)
-{
-}
-
-DaemonModule::~DaemonModule()
-{
-    emit moduleDeleted();
-    delete d_ptr;
-}
-
-} // namespace Liri
+#endif // SYSTEMDMANAGER_H

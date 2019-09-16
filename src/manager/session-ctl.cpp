@@ -21,80 +21,54 @@
  * $END_LICENSE$
  ***************************************************************************/
 
-#include <QDir>
 #include <QCommandLineParser>
 #include <QCoreApplication>
-#include <QSharedPointer>
-#include <QTimer>
-
-#include "daemon.h"
-
-#include <unistd.h>
+#include <QDBusConnection>
+#include <QDBusMessage>
+#include <QDBusPendingCall>
 
 #define TR(x) QT_TRANSLATE_NOOP("Command line parser", QStringLiteral(x))
 
+static void doLogout()
+{
+    auto msg = QDBusMessage::createMethodCall(
+                QStringLiteral("io.liri.SessionManager"),
+                QStringLiteral("/io/liri/SessionManager"),
+                QStringLiteral("io.liri.SessionManager"),
+                QStringLiteral("Logout"));
+    msg.setAutoStartService(false);
+    QDBusConnection::sessionBus().asyncCall(msg);
+}
+
 int main(int argc, char *argv[])
 {
-#ifndef DEVELOPMENT_BUILD
-    if (::getuid() == 0) {
-        qWarning("Liri daemon cannot be run as root!");
-        return 1;
-    }
-#endif
-
     // Application
     QCoreApplication app(argc, argv);
-    app.setApplicationName(QStringLiteral("Daemon"));
-    app.setApplicationVersion(QStringLiteral(LIRI_DAEMON_VERSION));
+    app.setApplicationName(QStringLiteral("Session Control"));
+    app.setApplicationVersion(QStringLiteral(VERSION));
     app.setOrganizationName(QStringLiteral("Liri"));
     app.setOrganizationDomain(QStringLiteral("liri.io"));
 
     // Command line parser
     QCommandLineParser parser;
-    parser.setApplicationDescription(TR("Liri daemon"));
+    parser.setApplicationDescription(TR("Liri session manager control"));
     parser.addHelpOption();
     parser.addVersionOption();
 
-#ifdef ENABLE_SYSTEMD
-    // Module to load
-    QCommandLineOption moduleOption(
-                QStringLiteral("module"),
-                TR("Module to start from a systemd unit"),
-                TR("name"));
-    parser.addOption(moduleOption);
-#endif
+    // Logout
+    QCommandLineOption logoutOption(
+                QStringLiteral("logout"),
+                TR("Exit the session manager"));
+    parser.addOption(logoutOption);
 
     // Parse command line
     parser.process(app);
 
-    // Create the daemon
-    auto *daemon = Daemon::instance();
-
     // Arguments
-#ifdef ENABLE_SYSTEMD
-    const QString module = parser.value(moduleOption).trimmed();
-    const bool systemdSupport = !module.isEmpty();
-#else
-    const bool systemdSupport = false;
-#endif
+    const bool logout = parser.isSet(logoutOption);
 
-    // Set systemd flag
-    daemon->setSystemdEnabled(systemdSupport);
-
-    // Go
-    QTimer::singleShot(0, &app, [=] {
-        // Initialize daemon
-        if (!daemon->initialize()) {
-            QCoreApplication::exit(1);
-            return;
-        }
-
-        // Start a specific module with systemd, or all modules
-        if (systemdSupport)
-            daemon->loadModule(module);
-        else
-            daemon->start();
-    });
+    if (logout)
+        doLogout();
 
     return app.exec();
 }

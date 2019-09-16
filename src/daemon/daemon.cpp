@@ -38,7 +38,6 @@ Q_GLOBAL_STATIC(Daemon, s_daemon)
 Daemon::Daemon(QObject *parent)
     : QObject(parent)
     , m_pluginRegistry(new PluginRegistry(this))
-    , m_interface(new DaemonInterface(this))
 {
     // Unix signals watcher
     UnixSignalWatcher *sigwatch = new UnixSignalWatcher(this);
@@ -48,6 +47,21 @@ Daemon::Daemon(QObject *parent)
     // Quit when the process is killed
     connect(sigwatch, &UnixSignalWatcher::unixSignal,
             this, &Daemon::shutdown);
+}
+
+bool Daemon::isSystemdEnabled() const
+{
+    return m_systemdEnabled;
+}
+
+void Daemon::setSystemdEnabled(bool value)
+{
+    if (m_systemdEnabled && !value) {
+        qCWarning(lcDaemon, "Systemd support cannot be disabled once the program has started");
+        return;
+    }
+
+    m_systemdEnabled = value;
 }
 
 bool Daemon::isShuttingDown() const
@@ -62,8 +76,12 @@ void Daemon::disableModule(const QString &name)
 
 bool Daemon::initialize()
 {
+    // Create D-Bus service
+    if (!isSystemdEnabled())
+        m_interface = new DaemonInterface(this);
+
     // Register D-Bus objects
-    if (!m_interface->registerWithDBus())
+    if (m_interface && !m_interface->registerWithDBus())
         return false;
 
     // Discover plugins
@@ -102,6 +120,10 @@ bool Daemon::initialize()
 
 void Daemon::start()
 {
+    // This is needed only in normal mode
+    if (isSystemdEnabled())
+        return;
+
     // Start all modules
     for (auto *module : qAsConst(m_modules)) {
         auto name = m_pluginRegistry->getNameForInstance(module);
@@ -136,9 +158,7 @@ void Daemon::shutdown()
         const auto name = m_pluginRegistry->getNameForInstance(instance);
 
         // Stop
-        qCInfo(lcDaemon, "==> Stopping module \"%s\"", qPrintable(name));
-        module->stop();
-        qCInfo(lcDaemon, "Module \"%s\" stopped", qPrintable(name));
+        unloadModule(name);
     }
 
     qCInfo(lcDaemon, "Bye");
@@ -163,8 +183,22 @@ void Daemon::loadModule(const QString &name)
         }
 
         qCInfo(lcDaemon, "==> Starting module \"%s\"", qPrintable(name));
+
+        // Claim a D-Bus service name so that systemd knows it started
+        if (isSystemdEnabled()) {
+            auto metaData = m_pluginRegistry->getMetaData(name);
+            auto serviceName = metaData[QStringLiteral("X-Liri-DaemonModule-ServiceName")].toString();
+            if (!QDBusConnection::sessionBus().registerService(serviceName)) {
+                qCWarning(lcDaemon, "Failed to register D-Bus service %s: %s",
+                          qPrintable(serviceName),
+                          qPrintable(QDBusConnection::sessionBus().lastError().message()));
+                return;
+            }
+        }
+
         module->start();
         m_loadedModules.append(module);
+
         qCInfo(lcDaemon, "Module \"%s\" started", qPrintable(name));
     }
 }
@@ -181,9 +215,15 @@ void Daemon::unloadModule(const QString &name)
     // Unload module
     if (m_loadedModules.contains(module)) {
         qCInfo(lcDaemon, "==> Stopping module \"%s\"", qPrintable(name));
+
         module->stop();
-        qCInfo(lcDaemon, "Module \"%s\" stopped", qPrintable(name));
         m_loadedModules.removeOne(module);
+
+        qCInfo(lcDaemon, "Module \"%s\" stopped", qPrintable(name));
+
+        // With systemd our sole purpose is to load a single module, quit if we are done
+        if (isSystemdEnabled())
+            QCoreApplication::quit();
     }
 }
 

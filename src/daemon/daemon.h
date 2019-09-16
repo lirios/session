@@ -44,6 +44,9 @@ class Daemon : public QObject
 public:
     explicit Daemon(QObject *parent = nullptr);
 
+    bool isSystemdEnabled() const;
+    void setSystemdEnabled(bool value);
+
     bool isShuttingDown() const;
 
     void disableModule(const QString &name);
@@ -61,13 +64,14 @@ public:
     static Daemon *instance();
 
 private:
+    bool m_systemdEnabled = true;
     bool m_running = true;
     QStringList m_disabledModules;
     PluginRegistry *m_pluginRegistry = nullptr;
-    DaemonInterface *m_interface = nullptr;
     ModulesList m_modules;
     ModulesList m_modulesOnDemand;
     ModulesList m_loadedModules;
+    DaemonInterface *m_interface = nullptr;
 };
 
 #endif // DAEMON_H

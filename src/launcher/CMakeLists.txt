@@ -21,6 +21,9 @@ liri_add_executable(LiriLauncher
         Liri::Xdg
 )
 
+if(ENABLE_SYSTEMD)
+    set(systemd "SystemdUnit=liri-launcher.service")
+endif()
 if(IS_ABSOLUTE "${INSTALL_LIBEXECDIR}")
     set(LIBEXECDIR "${INSTALL_LIBEXECDIR}")
 else()

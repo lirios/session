@@ -84,6 +84,14 @@ int main(int argc, char *argv[])
     parser.addHelpOption();
     parser.addVersionOption();
 
+#ifdef ENABLE_SYSTEMD
+    // Disable systemd support
+    QCommandLineOption noSystemdOption(
+                QStringLiteral("no-systemd"),
+                TR("Do not use systemd --user to bring up the session"));
+    parser.addOption(noSystemdOption);
+#endif
+
     // Modules to be disabled
     QCommandLineOption disableModulesOption(
                 QStringLiteral("disable-modules"),
@@ -94,12 +102,23 @@ int main(int argc, char *argv[])
     // Parse command line
     parser.process(app);
 
+    // Create the session manager
+    QSharedPointer<Session> session(new Session);
+
     // Arguments
     const QStringList disabledModules = parser.value(disableModulesOption).trimmed().split(QLatin1Char(','));
     const QStringList shellArgs = parser.positionalArguments();
+#ifdef ENABLE_SYSTEMD
+    const bool systemdSupport = !parser.isSet(noSystemdOption);
+#else
+    const bool systemdSupport = false;
+#endif
+    if (systemdSupport && parser.isSet(disableModulesOption))
+        qWarning("The --disable-modules argument is not effective when systemd "
+                 "is used to bring up the session");
 
-    // Create the session manager
-    QSharedPointer<Session> session(new Session);
+    // Set systemd flag
+    session->setSystemdEnabled(systemdSupport);
 
     // Set shell arguments
     session->setModuleArguments(QStringLiteral("io.liri.SessionManager.Modules.Shell"), shellArgs);
@@ -109,7 +128,7 @@ int main(int argc, char *argv[])
         session->disableModule(name);
 
     // Go
-    QTimer::singleShot(0, [session] {
+    QTimer::singleShot(0, &app, [session] {
         // A D-Bus session is required
         if (session->requireDBusSession())
             return;

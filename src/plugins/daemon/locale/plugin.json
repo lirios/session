@@ -7,5 +7,6 @@
     ],
     "License": "GPL-3.0-or-later",
     "Website": "https://liri.io",
-    "X-Liri-DaemonModule-AutoLoad": true
+    "X-Liri-DaemonModule-AutoLoad": true,
+    "X-Liri-DaemonModule-ServiceName": "io.liri.Daemon.Modules.Locale"
 }

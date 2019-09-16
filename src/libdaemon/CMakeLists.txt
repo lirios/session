@@ -1,3 +1,10 @@
+# Defines
+set(DEFINES "")
+
+if(LIRI_ENABLE_SYSTEMD)
+    list(APPEND DEFINES "ENABLE_SYSTEMD")
+endif()
+
 liri_add_module(Daemon
     DESCRIPTION
         "Daemon"
@@ -9,6 +16,7 @@ liri_add_module(Daemon
     DEFINES
         QT_NO_CAST_FROM_ASCII
         QT_NO_FOREACH
+        ${DEFINES}
     PUBLIC_LIBRARIES
         Qt5::Core
         Qt5::DBus

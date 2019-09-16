@@ -59,6 +59,7 @@ public:
 
 Q_SIGNALS:
     void environmentChangeRequested(const QString &key, const QString &value);
+    void shutdownRequested();
 
 private:
     SessionModulePrivate *const d_ptr;

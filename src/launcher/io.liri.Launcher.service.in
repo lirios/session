@@ -1,3 +1,4 @@
 [D-BUS Service]
 Name=io.liri.Launcher
 Exec=@LIBEXECDIR@/liri-launcher
+@systemd@

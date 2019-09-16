@@ -35,6 +35,7 @@
 #include "pluginregistry.h"
 #include "session.h"
 #include "sessionmanager.h"
+#include "systemdmanager.h"
 #include "utils.h"
 
 Q_LOGGING_CATEGORY(lcSession, "liri.session", QtInfoMsg)
@@ -49,8 +50,8 @@ Q_DECLARE_METATYPE(EnvMap)
 
 Session::Session(QObject *parent)
     : QObject(parent)
-    , m_pluginRegistry(new PluginRegistry(this))
     , m_manager(new SessionManager(this))
+    , m_pluginRegistry(new PluginRegistry(this))
 {
     // Register D-Bus types
     qDBusRegisterMetaType<EnvMap>();
@@ -70,22 +71,46 @@ Session::~Session()
     qDeleteAll(m_loadedModules);
 }
 
+bool Session::isSystemdEnabled() const
+{
+    return m_systemdEnabled;
+}
+
+void Session::setSystemdEnabled(bool value)
+{
+    if (m_systemdEnabled && !value) {
+        qCWarning(lcSession, "Systemd support cannot be disabled once the program has started");
+        return;
+    }
+
+    m_systemdEnabled = value;
+    m_systemd = new SystemdManager(this);
+}
+
 bool Session::requireDBusSession()
 {
     // Don't continue if we are already in a D-Bus session
     if (qEnvironmentVariableIsSet("DBUS_SESSION_BUS_ADDRESS"))
         return false;
 
-    // Avoid infinite recursion if dbus-run-session fails to set DBUS_SESSION_BUS_ADDRESS
-    if (getParentProcessName().contains(QStringLiteral("dbus-run-session")))
-        return false;
+    if (m_systemdEnabled) {
+        if (!m_systemd->isAvailable()) {
+            qCCritical(lcSession, "Systemd D-Bus service is not available");
+            return false;
+        }
+    } else {
+        // Avoid infinite recursion if dbus-run-session fails to set DBUS_SESSION_BUS_ADDRESS
+        if (getParentProcessName().contains(QStringLiteral("dbus-run-session")))
+            return false;
 
-    // Restart with dbus-run-session
-    QCoreApplication::quit();
-    QStringList args = QStringList() << QStringLiteral("--");
-    args += QCoreApplication::arguments();
-    QProcess::startDetached(QStringLiteral("dbus-run-session"),
-                            args);
+        // Restart with dbus-run-session
+        QCoreApplication::quit();
+        QStringList args = QStringList() << QStringLiteral("--");
+        args += QCoreApplication::arguments();
+        QProcess::startDetached(QStringLiteral("dbus-run-session"),
+                                args);
+    }
+
     return true;
 }
 
@@ -115,24 +140,26 @@ bool Session::initialize()
     if (!m_manager->registerWithDBus())
         return false;
 
-    // Discover plugins
-    m_pluginRegistry->discover();
+    if (!m_systemdEnabled) {
+        // Discover plugins
+        m_pluginRegistry->discover();
 
-    // Add modules to the list
-    PluginsMap plugins = m_pluginRegistry->plugins();
-    PluginsMap::iterator it;
-    for (it = plugins.begin(); it != plugins.end(); ++it) {
-        auto name = it.key();
-        auto instance = it.value();
-        auto module = dynamic_cast<Liri::SessionModule *>(instance);
+        // Add modules to the list
+        PluginsMap plugins = m_pluginRegistry->plugins();
+        PluginsMap::iterator it;
+        for (it = plugins.begin(); it != plugins.end(); ++it) {
+            auto name = it.key();
+            auto instance = it.value();
+            auto module = dynamic_cast<Liri::SessionModule *>(instance);
 
-        if (!module) {
-            qCWarning(lcSession, "Plugin \"%s\" is not a session module",
-                      qPrintable(name));
-            continue;
+            if (!module) {
+                qCWarning(lcSession, "Plugin \"%s\" is not a session module",
+                          qPrintable(name));
+                continue;
+            }
+
+            m_modules[module->startupPhase()].append(module);
         }
-
-        m_modules[module->startupPhase()].append(module);
     }
 
     return true;
@@ -143,45 +170,56 @@ bool Session::start()
     // Update D-Bus activation environment
     uploadEnvironment();
 
-    // Run all modules of each startup phase
-    ModulesMap::iterator it;
-    for (it = m_modules.begin(); it != m_modules.end(); ++it) {
-        ModulesList list = it.value();
-        for (int i = 0; i < list.count(); i++) {
-            auto module = list.at(i);
-            auto name = m_pluginRegistry->getNameForInstance(module);
-            if (!module) {
-                qCWarning(lcSession, "Ignoring invalid session module \"%s\"",
-                          qPrintable(name));
-                continue;
-            }
+    bool status = false;
 
-            // Skip disabled modules
-            if (m_disabledModules.contains(name))
-                continue;
+    if (m_systemdEnabled) {
+        if (m_systemd->loadUnit(QStringLiteral("liri-session.target")))
+            status = m_systemd->startUnit(QStringLiteral("liri-session.target"), QStringLiteral("replace"));
+    } else {
+        // Run all modules of each startup phase
+        ModulesMap::iterator it;
+        for (it = m_modules.begin(); it != m_modules.end(); ++it) {
+            ModulesList list = it.value();
+            for (int i = 0; i < list.count(); i++) {
+                auto module = list.at(i);
+                auto name = m_pluginRegistry->getNameForInstance(module);
+                if (!module) {
+                    qCWarning(lcSession, "Ignoring invalid session module \"%s\"",
+                              qPrintable(name));
+                    continue;
+                }
 
-            // Let the module set environment variables directly
-            connect(module, &Liri::SessionModule::environmentChangeRequested,
-                    this, &Session::setEnvironment);
+                // Skip disabled modules
+                if (m_disabledModules.contains(name))
+                    continue;
 
-            qCInfo(lcSession, "==> Starting session module \"%s\"",
-                   qPrintable(name));
+                // Let the module set environment variables directly
+                connect(module, &Liri::SessionModule::environmentChangeRequested,
+                        this, &Session::setEnvironment);
+                connect(module, &Liri::SessionModule::shutdownRequested,
+                        this, &Session::shutdown);
 
-            // Start
-            if (module->start(m_moduleArgs[name])) {
-                m_loadedModules.append(module);
-                qCInfo(lcSession, "Session module \"%s\" started",
+                qCInfo(lcSession, "==> Starting session module \"%s\"",
                        qPrintable(name));
-            } else {
-                qCWarning(lcSession, "Failed to start session module \"%s\"",
-                          qPrintable(name));
-                shutdown();
-                return false;
+
+                // Start
+                if (module->start(m_moduleArgs[name])) {
+                    m_loadedModules.append(module);
+                    qCInfo(lcSession, "Session module \"%s\" started",
+                           qPrintable(name));
+                } else {
+                    qCWarning(lcSession, "Failed to start session module \"%s\"",
+                              qPrintable(name));
+                    shutdown();
+                    return false;
+                }
             }
         }
+
+        status = true;
     }
 
-    return true;
+    return status;
 }
 
 void Session::setEnvironment(const QString &key, const QString &value)
@@ -226,23 +264,26 @@ void Session::unsetEnvironment(const QString &key)
 
 void Session::shutdown()
 {
-    qCInfo(lcSession, "Closing session now");
+    if (!m_systemdEnabled) {
+        qCInfo(lcSession, "Closing session...");
 
-    // Stop modules
-    std::reverse(m_loadedModules.begin(), m_loadedModules.end());
-    for (auto module : qAsConst(m_loadedModules)) {
-        auto instance = dynamic_cast<QObject *>(module);
-        const auto name = m_pluginRegistry->getNameForInstance(instance);
+        // Stop modules
+        std::reverse(m_loadedModules.begin(), m_loadedModules.end());
+        for (auto module : qAsConst(m_loadedModules)) {
+            auto instance = dynamic_cast<QObject *>(module);
+            const auto name = m_pluginRegistry->getNameForInstance(instance);
 
-        qCInfo(lcSession, "==> Stopping session module \"%s\"",
-               qPrintable(name));
+            qCInfo(lcSession, "==> Stopping session module \"%s\"",
+                   qPrintable(name));
 
-        if (!module->stop())
-            qCWarning(lcSession, "Failed to stop session module \"%s\"",
-                      qPrintable(name));
+            if (!module->stop())
+                qCWarning(lcSession, "Failed to stop session module \"%s\"",
+                          qPrintable(name));
+        }
+
+        qCInfo(lcSession, "Quit");
     }
 
-    qCInfo(lcSession, "Quitting");
     QCoreApplication::quit();
 }
 
@@ -279,10 +320,26 @@ void Session::uploadEnvironment()
                     QStringLiteral("/org/freedesktop/DBus"),
                     QStringLiteral("org.freedesktop.DBus"),
                     QStringLiteral("UpdateActivationEnvironment"));
+        msg.setAutoStartService(false);
         msg.setArguments(QVariantList({QVariant::fromValue(envMap)}));
         QDBusReply<void> reply = QDBusConnection::sessionBus().call(msg);
         if (!reply.isValid())
             qCWarning(lcSession, "Failed to update activation environment: %s",
+                      qPrintable(reply.error().message()));
+    }
+
+    // Synchronously update systemd environment
+    if (m_systemdEnabled) {
+        auto msg = QDBusMessage::createMethodCall(
+                    QStringLiteral("org.freedesktop.systemd1"),
+                    QStringLiteral("/org/freedesktop/systemd1"),
+                    QStringLiteral("org.freedesktop.systemd1.Manager"),
+                    QStringLiteral("SetEnvironment"));
+        msg.setAutoStartService(false);
+        msg.setArguments(QVariantList() << sysEnv.toStringList());
+        QDBusReply<void> reply = QDBusConnection::sessionBus().call(msg);
+        if (!reply.isValid())
+            qCWarning(lcSession, "Failed to update systemd environment: %s",
                       qPrintable(reply.error().message()));
     }
 }

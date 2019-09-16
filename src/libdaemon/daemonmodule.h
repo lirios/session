@@ -46,9 +46,6 @@ public:
     virtual void start() = 0;
     virtual void stop() = 0;
 
-    QString name() const;
-    void setName(const QString &name);
-
 Q_SIGNALS:
     void moduleDeleted();
 

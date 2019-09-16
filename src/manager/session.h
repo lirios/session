@@ -35,6 +35,7 @@ Q_DECLARE_LOGGING_CATEGORY(lcSession)
 
 class PluginRegistry;
 class SessionManager;
+class SystemdManager;
 
 typedef QVector<Liri::SessionModule *> ModulesList;
 typedef QMap<Liri::SessionModule::StartupPhase, ModulesList> ModulesMap;
@@ -45,6 +46,9 @@ class Session : public QObject
 public:
     explicit Session(QObject *parent = nullptr);
     ~Session();
+
+    bool isSystemdEnabled() const;
+    void setSystemdEnabled(bool value);
 
     bool requireDBusSession();
 
@@ -61,10 +65,13 @@ public Q_SLOTS:
     void shutdown();
 
 private:
+    QMap<QString, QString> m_env;
+    bool m_systemdEnabled = false;
+    SystemdManager *m_systemd = nullptr;
+    SessionManager *m_manager = nullptr;
     QStringList m_disabledModules;
     QMap<QString, QStringList> m_moduleArgs;
     PluginRegistry *m_pluginRegistry = nullptr;
-    SessionManager *m_manager = nullptr;
     ModulesMap m_modules;
     ModulesList m_loadedModules;
 

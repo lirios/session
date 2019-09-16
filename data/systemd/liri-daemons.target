@@ -1,0 +1,9 @@
+[Unit]
+Description=Daemons that perform automated tasks or configure the graphical Liri session
+BindsTo=liri-daemon-locale.service
+After=liri-daemon-locale.service
+After=liri-services.target
+StopWhenUnneeded=yes
+# Never manually start or stop
+RefuseManualStart=yes
+RefuseManualStop=yes
