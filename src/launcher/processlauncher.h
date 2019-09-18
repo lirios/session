@@ -33,7 +33,7 @@ Q_DECLARE_LOGGING_CATEGORY(lcLauncher)
 class ProcessLauncher : public QObject
 {
     Q_OBJECT
-    Q_CLASSINFO("D-Bus Interface", "io.liri.ProcessLauncher")
+    Q_CLASSINFO("D-Bus Interface", "io.liri.Launcher")
 public:
     explicit ProcessLauncher(QObject *parent = nullptr);
     ~ProcessLauncher();
