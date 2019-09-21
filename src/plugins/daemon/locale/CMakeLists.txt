@@ -4,7 +4,7 @@ endif()
 
 liri_add_plugin(locale
     TYPE
-        liri/sessionmodules
+        liri/daemon
     SOURCES
         plugin.cpp
         plugin.h
@@ -12,8 +12,6 @@ liri_add_plugin(locale
         QT_NO_CAST_FROM_ASCII
         QT_NO_FOREACH
     LIBRARIES
-        Qt5::DBus
-        Liri::Session
+        Liri::Daemon
         Liri::Qt5GSettings
-    STATIC
 )

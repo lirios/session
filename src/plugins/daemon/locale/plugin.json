@@ -1,10 +1,11 @@
 {
-    "Id": "io.liri.SessionManager.Modules.Locale",
-    "Type": "SessionModule",
+    "Id": "locale",
+    "Type": "DaemonModule",
     "Version": "1.0.0",
     "Authors": [
         "Pier Luigi Fiorini <pierluigi.fiorini@liri.io>"
     ],
     "License": "GPL-3.0-or-later",
-    "Website": "https://liri.io"
+    "Website": "https://liri.io",
+    "X-Liri-DaemonModule-AutoLoad": true
 }

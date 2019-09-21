@@ -38,9 +38,6 @@ liri_add_executable(LiriSession
         translation.h
         utils.cpp
         utils.h
-        sigwatch/sigwatch.cpp
-        sigwatch/sigwatch.h
-        sigwatch/sigwatch_p.h
         ${QM_FILES}
     DBUS_ADAPTOR_SOURCES
         "${CMAKE_CURRENT_SOURCE_DIR}/io.liri.SessionManager.xml"
@@ -53,9 +50,9 @@ liri_add_executable(LiriSession
     LIBRARIES
         Qt5::Core
         Qt5::DBus
+        Sigwatch
         Liri::Session
         autostart
-        locale
         services
         shell
 )

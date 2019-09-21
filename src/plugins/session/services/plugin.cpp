@@ -43,6 +43,7 @@ bool ServicesPlugin::start(const QStringList &args)
 {
     Q_UNUSED(args)
 
+    startService(QStringLiteral("io.liri.Daemon"));
     startService(QStringLiteral("io.liri.Launcher"));
 
     return true;

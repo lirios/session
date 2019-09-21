@@ -26,18 +26,18 @@
 #include <QDBusMessage>
 #include <QProcess>
 
+#include <libsigwatch/sigwatch.h>
+
 #include "diagnostics.h"
 #include "gitsha1.h"
 #include "pluginregistry.h"
 #include "session.h"
 #include "sessionmanager.h"
-#include "sigwatch/sigwatch.h"
 #include "utils.h"
 
 Q_LOGGING_CATEGORY(lcSession, "liri.session", QtInfoMsg)
 
 Q_IMPORT_PLUGIN(AutostartPlugin)
-Q_IMPORT_PLUGIN(LocalePlugin)
 Q_IMPORT_PLUGIN(ServicesPlugin)
 Q_IMPORT_PLUGIN(ShellPlugin)
 

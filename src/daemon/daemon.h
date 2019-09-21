@@ -21,44 +21,53 @@
  * $END_LICENSE$
  ***************************************************************************/
 
-#ifndef LOCALEPLUGIN_H
-#define LOCALEPLUGIN_H
+#ifndef DAEMON_H
+#define DAEMON_H
 
 #include <QLoggingCategory>
 #include <QObject>
+#include <QProcessEnvironment>
+#include <QVector>
 
-#include <LiriSession/SessionModule>
+#include <LiriDaemon/DaemonModule>
 
-Q_DECLARE_LOGGING_CATEGORY(lcSession)
+Q_DECLARE_LOGGING_CATEGORY(lcDaemon)
 
-namespace QtGSettings {
-class QGSettings;
-} // namespace QtGSettings
+class DaemonInterface;
+class PluginRegistry;
 
-class LocalePlugin : public Liri::SessionModule
+typedef QVector<Liri::DaemonModule *> ModulesList;
+
+class Daemon : public QObject
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID LiriSessionModule_iid FILE "plugin.json")
-    Q_INTERFACES(Liri::SessionModule)
 public:
-    explicit LocalePlugin(QObject *parent = nullptr);
+    explicit Daemon(QObject *parent = nullptr);
 
-    StartupPhase startupPhase() const override;
+    bool isShuttingDown() const;
 
-    bool start(const QStringList &args = QStringList()) override;
-    bool stop() override;
+    void disableModule(const QString &name);
+
+    bool initialize();
+    void start();
+
+public Q_SLOTS:
+    void shutdown();
+
+public:
+    void loadModule(const QString &name);
+    void unloadModule(const QString &name);
+
+    static Daemon *instance();
 
 private:
-    QtGSettings::QGSettings *m_settings = nullptr;
-    QString m_language;
-    QString m_region;
-    QMap<QString, QString> m_systemLocale;
-
-    void setEnvironment(const QString &key, const QString &value);
-    void getSystemLocale();
-
-private Q_SLOTS:
-    void handleSettingChanged(const QString &key);
+    bool m_running = true;
+    QStringList m_disabledModules;
+    PluginRegistry *m_pluginRegistry = nullptr;
+    DaemonInterface *m_interface = nullptr;
+    ModulesList m_modules;
+    ModulesList m_modulesOnDemand;
+    ModulesList m_loadedModules;
 };
 
-#endif // LOCALEPLUGIN_H
+#endif // DAEMON_H

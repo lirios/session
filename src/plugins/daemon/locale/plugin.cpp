@@ -35,7 +35,7 @@ const QString interfaceName = QStringLiteral("org.freedesktop.locale1");
 const QString objectPath = QStringLiteral("/org/freedesktop/locale1");
 
 LocalePlugin::LocalePlugin(QObject *parent)
-    : Liri::SessionModule(parent)
+    : Liri::DaemonModule(parent)
 {
     getSystemLocale();
 
@@ -47,29 +47,25 @@ LocalePlugin::LocalePlugin(QObject *parent)
             this, &LocalePlugin::handleSettingChanged);
 }
 
-Liri::SessionModule::StartupPhase LocalePlugin::startupPhase() const
+void LocalePlugin::start()
 {
-    return Initialization;
-}
-
-bool LocalePlugin::start(const QStringList &args)
-{
-    Q_UNUSED(args)
-
     handleSettingChanged(languageKey);
     handleSettingChanged(regionKey);
-
-    return true;
 }
 
-bool LocalePlugin::stop()
+void LocalePlugin::stop()
 {
-    return true;
 }
 
 void LocalePlugin::setEnvironment(const QString &key, const QString &value)
 {
-    Q_EMIT environmentChangeRequested(key, value);
+    auto msg = QDBusMessage::createMethodCall(
+                QStringLiteral("io.liri.Launcher"),
+                QStringLiteral("/io/liri/Launcher"),
+                QStringLiteral("io.liri.Launcher"),
+                QStringLiteral("SetEnvironment"));
+    msg.setArguments(QVariantList() << key << value);
+    QDBusConnection::sessionBus().send(msg);
 }
 
 void LocalePlugin::getSystemLocale()

@@ -1,0 +1,18 @@
+liri_add_module(Daemon
+    DESCRIPTION
+        "Daemon"
+    SOURCES
+        daemonmodule.cpp
+        daemonmodule.h
+    FORWARDING_HEADERS
+        DaemonModule
+    DEFINES
+        QT_NO_CAST_FROM_ASCII
+        QT_NO_FOREACH
+    PUBLIC_LIBRARIES
+        Qt5::Core
+        Qt5::DBus
+    PKGCONFIG_DEPENDENCIES
+        Qt5Core
+        Qt5DBus
+)
