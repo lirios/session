@@ -54,20 +54,11 @@ public:
 
     virtual StartupPhase startupPhase() const = 0;
 
-    QMap<QString, QString> environment() const;
-
-    void setEnvironment(const QString &key, const QString &value);
-    void unsetEnvironment(const QString &key);
-
     virtual bool start(const QStringList &args = QStringList()) = 0;
     virtual bool stop() = 0;
 
 Q_SIGNALS:
     void environmentChangeRequested(const QString &key, const QString &value);
-
-protected:
-    virtual void environmentVariableSet(const QString &key, const QString &value);
-    virtual void environmentVariableUnset(const QString &key);
 
 private:
     SessionModulePrivate *const d_ptr;

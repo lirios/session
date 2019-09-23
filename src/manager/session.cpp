@@ -24,6 +24,8 @@
 #include <QCoreApplication>
 #include <QDBusConnection>
 #include <QDBusMessage>
+#include <QDBusMetaType>
+#include <QDBusReply>
 #include <QProcess>
 
 #include <libsigwatch/sigwatch.h>
@@ -41,11 +43,18 @@ Q_IMPORT_PLUGIN(AutostartPlugin)
 Q_IMPORT_PLUGIN(ServicesPlugin)
 Q_IMPORT_PLUGIN(ShellPlugin)
 
+// D-Bus type to update activation environment
+typedef QMap<QString,QString> EnvMap;
+Q_DECLARE_METATYPE(EnvMap)
+
 Session::Session(QObject *parent)
     : QObject(parent)
     , m_pluginRegistry(new PluginRegistry(this))
     , m_manager(new SessionManager(this))
 {
+    // Register D-Bus types
+    qDBusRegisterMetaType<EnvMap>();
+
     // Unix signals watcher
     UnixSignalWatcher *sigwatch = new UnixSignalWatcher(this);
     sigwatch->watchForSignal(SIGINT);
@@ -90,18 +99,6 @@ void Session::setModuleArguments(const QString &name, const QStringList &args)
     m_moduleArgs[name] = args;
 }
 
-QProcessEnvironment Session::sessionEnvironment() const
-{
-    QProcessEnvironment env;
-
-    QMap<QString, QString>::iterator it;
-    QMap<QString, QString> sessionEnv = m_env;
-    for (it = sessionEnv.begin(); it != sessionEnv.end(); ++it)
-        env.insert(it.key(), it.value());
-
-    return env;
-}
-
 bool Session::initialize()
 {
     // Print version information
@@ -113,9 +110,6 @@ bool Session::initialize()
 
     // Print OS information
     qInfo("%s", qPrintable(Diagnostics::systemInformation().trimmed()));
-
-    // Add environment variables
-    extendSessionEnvironment();
 
     // Register D-Bus objects
     if (!m_manager->registerWithDBus())
@@ -146,6 +140,9 @@ bool Session::initialize()
 
 bool Session::start()
 {
+    // Update D-Bus activation environment
+    uploadEnvironment();
+
     // Run all modules of each startup phase
     ModulesMap::iterator it;
     for (it = m_modules.begin(); it != m_modules.end(); ++it) {
@@ -170,9 +167,6 @@ bool Session::start()
             qCInfo(lcSession, "==> Starting session module \"%s\"",
                    qPrintable(name));
 
-            // Pass environment variables to the module
-            passEnvironment(module);
-
             // Start
             if (module->start(m_moduleArgs[name])) {
                 m_loadedModules.append(module);
@@ -184,9 +178,6 @@ bool Session::start()
                 shutdown();
                 return false;
             }
-
-            // Propagate environment variables to D-Bus activate services
-            QProcess::startDetached(QStringLiteral("dbus-update-activation-environment --systemd --all"));
         }
     }
 
@@ -195,16 +186,42 @@ bool Session::start()
 
 void Session::setEnvironment(const QString &key, const QString &value)
 {
+    // Set environment variable
     qCDebug(lcSession, "Setting environment variable %s=\"%s\"",
             qPrintable(key), qPrintable(value));
-    m_env[key] = value;
+    qputenv(qPrintable(key), value.toLocal8Bit());
+
+    // Propagate environment variable to the launcher
+    auto msg = QDBusMessage::createMethodCall(
+                QStringLiteral("io.liri.Launcher"),
+                QStringLiteral("/io/liri/Launcher"),
+                QStringLiteral("io.liri.Launcher"),
+                QStringLiteral("SetEnvironment"));
+    msg.setArguments(QVariantList() << key << value);
+    QDBusConnection::sessionBus().send(msg);
+
+    // Propagate environment variables to D-Bus activate services
+    uploadEnvironment();
 }
 
 void Session::unsetEnvironment(const QString &key)
 {
+    // Unset environment variable
     qCDebug(lcSession, "Unsetting environment variable %s",
             qPrintable(key));
-    m_env.remove(key);
+    qunsetenv(qPrintable(key));
+
+    // Propagate environment variable to the launcher
+    auto msg = QDBusMessage::createMethodCall(
+                QStringLiteral("io.liri.Launcher"),
+                QStringLiteral("/io/liri/Launcher"),
+                QStringLiteral("io.liri.Launcher"),
+                QStringLiteral("UnsetEnvironment"));
+    msg.setArguments(QVariantList() << key);
+    QDBusConnection::sessionBus().send(msg);
+
+    // Propagate environment variables to D-Bus activate services
+    uploadEnvironment();
 }
 
 void Session::shutdown()
@@ -229,23 +246,43 @@ void Session::shutdown()
     QCoreApplication::quit();
 }
 
-void Session::extendSessionEnvironment()
+void Session::uploadEnvironment()
 {
-    // We need to pass all our environment variables to children
-    // otherwise not everything will work
-    auto systemEnv = QProcessEnvironment::systemEnvironment();
-    const auto keys = systemEnv.keys();
-    for (const auto &key : keys)
-        m_env[key] = systemEnv.value(key);
-}
+    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+    QProcessEnvironment sysEnv(env);
 
-void Session::passEnvironment(Liri::SessionModule *module)
-{
-    qCDebug(lcSession, "Passing session environment variables:");
+    // Copy environment variables and remove login-session specific that we
+    // don't want to set for every session
+    sysEnv.remove(QStringLiteral("XDG_SEAT"));
+    sysEnv.remove(QStringLiteral("XDG_SESSION_CLASS"));
+    sysEnv.remove(QStringLiteral("XDG_SESSION_DESKTOP"));
+    sysEnv.remove(QStringLiteral("XDG_SESSION_ID"));
+    sysEnv.remove(QStringLiteral("XDG_SESSION_TYPE"));
+    sysEnv.remove(QStringLiteral("XDG_VTNR"));
 
-    QMap<QString, QString>::iterator it;
-    for (it = m_env.begin(); it != m_env.end(); ++it) {
-        qCDebug(lcSession, "  %s=\"%s\"", qPrintable(it.key()), qPrintable(it.value()));
-        module->setEnvironment(it.key(), it.value());
+    // Avoid shell code in environment variables
+    const auto keys = sysEnv.keys();
+    for (const auto &key : keys) {
+        if (key.startsWith(QStringLiteral("BASH_FUNC")))
+            sysEnv.remove(key);
+    }
+
+    // Synchronously update activation environment
+    {
+        EnvMap envMap;
+        const auto keys = sysEnv.keys();
+        for (const auto &key : keys)
+            envMap.insert(key, sysEnv.value(key));
+
+        auto msg = QDBusMessage::createMethodCall(
+                    QStringLiteral("org.freedesktop.DBus"),
+                    QStringLiteral("/org/freedesktop/DBus"),
+                    QStringLiteral("org.freedesktop.DBus"),
+                    QStringLiteral("UpdateActivationEnvironment"));
+        msg.setArguments(QVariantList({QVariant::fromValue(envMap)}));
+        QDBusReply<void> reply = QDBusConnection::sessionBus().call(msg);
+        if (!reply.isValid())
+            qCWarning(lcSession, "Failed to update activation environment: %s",
+                      qPrintable(reply.error().message()));
     }
 }

@@ -52,8 +52,6 @@ public:
     void setModuleArguments(const QString &name,
                             const QStringList &args);
 
-    QProcessEnvironment sessionEnvironment() const;
-
     bool initialize();
     bool start();
 
@@ -65,14 +63,12 @@ public Q_SLOTS:
 private:
     QStringList m_disabledModules;
     QMap<QString, QStringList> m_moduleArgs;
-    QMap<QString, QString> m_env;
     PluginRegistry *m_pluginRegistry = nullptr;
     SessionManager *m_manager = nullptr;
     ModulesMap m_modules;
     ModulesList m_loadedModules;
 
-    void extendSessionEnvironment();
-    void passEnvironment(Liri::SessionModule *module);
+    void uploadEnvironment();
 };
 
 #endif // SESSION_H
