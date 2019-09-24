@@ -41,22 +41,21 @@ ProcessLauncher::ProcessLauncher(QObject *parent)
     : QObject(parent)
 {
     // Set environment for the programs we will launch from here
-    m_env = QProcessEnvironment::systemEnvironment();
-    m_env.insert(QStringLiteral("XDG_SESSION_TYPE"), QStringLiteral("wayland"));
+    qputenv("XDG_SESSION_TYPE", "wayland");
 #if QT_VERSION >= QT_VERSION_CHECK(5, 11, 0)
-    m_env.insert(QStringLiteral("QT_QPA_PLATFORM"), QStringLiteral("wayland;xcb"));
+    qputenv("QT_QPA_PLATFORM", "wayland;xcb");
 #else
-    m_env.insert(QStringLiteral("QT_QPA_PLATFORM"), QStringLiteral("wayland"));
+    qputenv("QT_QPA_PLATFORM", "wayland");
 #endif
-    m_env.insert(QStringLiteral("QT_QPA_PLATFORMTHEME"), QStringLiteral("liri"));
-    m_env.insert(QStringLiteral("QT_WAYLAND_SHELL_INTEGRATION"), QStringLiteral("xdg-shell-v6"));
-    m_env.insert(QStringLiteral("QT_QUICK_CONTROLS_1_STYLE"), QStringLiteral("Flat"));
-    m_env.insert(QStringLiteral("QT_QUICK_CONTROLS_STYLE"), QStringLiteral("material"));
-    m_env.insert(QStringLiteral("QT_WAYLAND_DECORATION"), QStringLiteral("material"));
-    m_env.insert(QStringLiteral("QT_AUTO_SCREEN_SCALE_FACTOR"), QStringLiteral("1"));
-    m_env.insert(QStringLiteral("XCURSOR_THEME"), QStringLiteral("Paper"));
-    m_env.remove(QStringLiteral("QT_SCALE_FACTOR"));
-    m_env.remove(QStringLiteral("QT_SCREEN_SCALE_FACTORS"));
+    qputenv("QT_QPA_PLATFORMTHEME", "liri");
+    qputenv("QT_WAYLAND_SHELL_INTEGRATION", "xdg-shell-v6");
+    qputenv("QT_QUICK_CONTROLS_1_STYLE", "Flat");
+    qputenv("QT_QUICK_CONTROLS_STYLE", "material");
+    qputenv("QT_WAYLAND_DECORATION", "material");
+    qputenv("QT_AUTO_SCREEN_SCALE_FACTOR", "1");
+    qputenv("XCURSOR_THEME", "Paper");
+    qunsetenv("QT_SCALE_FACTOR");
+    qunsetenv("QT_SCREEN_SCALE_FACTORS");
 }
 
 ProcessLauncher::~ProcessLauncher()
@@ -91,14 +90,14 @@ void ProcessLauncher::SetEnvironment(const QString &key, const QString &value)
 {
     qCDebug(lcLauncher, "Setting environment variable %s=\"%s\"",
             qPrintable(key), qPrintable(value));
-    m_env.insert(key, value);
+    qputenv(qPrintable(key), value.toUtf8());
 }
 
 void ProcessLauncher::UnsetEnvironment(const QString &key)
 {
     qCDebug(lcLauncher, "Unsetting environment variable %s",
             qPrintable(key));
-    m_env.remove(key);
+    qunsetenv(qPrintable(key));
 }
 
 bool ProcessLauncher::LaunchApplication(const QString &appId)
@@ -120,8 +119,6 @@ bool ProcessLauncher::LaunchApplication(const QString &appId)
         return false;
     }
 
-    desktop->setProcessEnvironment(m_env);
-
     return desktop->startDetached();
 }
 
@@ -142,8 +139,6 @@ bool ProcessLauncher::LaunchDesktopFile(const QString &path, const QStringList &
         return false;
     }
 
-    desktop->setProcessEnvironment(m_env);
-
     return desktop->startDetached(urls);
 }
 
@@ -153,6 +148,5 @@ bool ProcessLauncher::LaunchCommand(const QString &command)
         return false;
 
     QProcess *process = new QProcess(this);
-    process->setProcessEnvironment(m_env);
     return process->startDetached(command);
 }

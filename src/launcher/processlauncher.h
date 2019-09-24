@@ -26,7 +26,6 @@
 
 #include <QLoggingCategory>
 #include <QObject>
-#include <QProcessEnvironment>
 
 Q_DECLARE_LOGGING_CATEGORY(lcLauncher)
 
@@ -46,9 +45,6 @@ public:
     Q_SCRIPTABLE bool LaunchApplication(const QString &appId);
     Q_SCRIPTABLE bool LaunchDesktopFile(const QString &path, const QStringList &urls = QStringList());
     Q_SCRIPTABLE bool LaunchCommand(const QString &command);
-
-private:
-    QProcessEnvironment m_env;
 };
 
 #endif // PROCESSLAUNCHER_H
