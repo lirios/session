@@ -5,6 +5,9 @@
       <arg name="key" type="s" direction="in"/>
       <arg name="value" type="s" direction="in"/>
     </method>
+    <method name="UnsetEnvironment">
+      <arg name="key" type="s" direction="in"/>
+    </method>
     <method name="Logout"/>
   </interface>
 </node>
