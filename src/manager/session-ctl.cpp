@@ -24,20 +24,35 @@
 #include <QCommandLineParser>
 #include <QCoreApplication>
 #include <QDBusConnection>
+#include <QDBusConnectionInterface>
 #include <QDBusMessage>
 #include <QDBusPendingCall>
+#include <QDBusReply>
+#include <QTimer>
 
 #define TR(x) QT_TRANSLATE_NOOP("Command line parser", QStringLiteral(x))
 
+static bool hasService()
+{
+    auto *interface = QDBusConnection::sessionBus().interface();
+    QDBusReply<QStringList> reply = interface->call(QStringLiteral("ListNames"));
+    return reply.value().contains(QLatin1String("io.liri.SessionManager"));
+}
+
 static void doLogout()
 {
+    // Return immediately if the service is not running anymore:
+    // maybe it was already terminated
+    if (!hasService())
+        return;
+
     auto msg = QDBusMessage::createMethodCall(
                 QStringLiteral("io.liri.SessionManager"),
                 QStringLiteral("/io/liri/SessionManager"),
                 QStringLiteral("io.liri.SessionManager"),
                 QStringLiteral("Logout"));
     msg.setAutoStartService(false);
-    QDBusConnection::sessionBus().asyncCall(msg);
+    QDBusConnection::sessionBus().asyncCall(msg, 2500);
 }
 
 int main(int argc, char *argv[])
@@ -67,8 +82,14 @@ int main(int argc, char *argv[])
     // Arguments
     const bool logout = parser.isSet(logoutOption);
 
-    if (logout)
-        doLogout();
+    // Go
+    QTimer::singleShot(0, &app, [=] {
+        // Shutdown the session manager
+        if (logout)
+            doLogout();
+
+        QCoreApplication::exit(0);
+    });
 
     return app.exec();
 }
