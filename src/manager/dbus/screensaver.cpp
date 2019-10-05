@@ -28,13 +28,14 @@
 
 #include "screensaver.h"
 #include "session.h"
+#include "backends/sessionbackend.h"
 
 ScreenSaver::ScreenSaver(QObject *parent)
     : QObject(parent)
 {
-    connect(Liri::Logind::instance(), &Liri::Logind::lockSessionRequested,
+    connect(SessionBackend::instance(), &SessionBackend::sessionLocked,
             this, &ScreenSaver::handleLock);
-    connect(Liri::Logind::instance(), &Liri::Logind::unlockSessionRequested,
+    connect(SessionBackend::instance(), &SessionBackend::sessionUnlocked,
             this, &ScreenSaver::handleUnlock);
     connect(Liri::Logind::instance(), &Liri::Logind::inhibited,
             this, &ScreenSaver::handleInhibited);
@@ -140,7 +141,7 @@ void ScreenSaver::UnInhibit(uint cookie)
 
 void ScreenSaver::Lock()
 {
-    Liri::Logind::instance()->lockSession();
+    SessionBackend::instance()->lockSession();
 }
 
 uint ScreenSaver::Throttle(const QString &appName, const QString &reason)

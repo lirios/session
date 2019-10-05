@@ -1,7 +1,7 @@
 /****************************************************************************
  * This file is part of Liri.
  *
- * Copyright (C) 2019 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
+ * Copyright (C) 2018 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
  *
  * $BEGIN_LICENSE:GPL3+$
  *
@@ -21,30 +21,33 @@
  * $END_LICENSE$
  ***************************************************************************/
 
-#ifndef SESSIONMANAGER_H
-#define SESSIONMANAGER_H
+#include <QMutex>
 
-#include <QObject>
+#include "fakebackend.h"
+#include "logindbackend.h"
+#include "sessionbackend.h"
 
-class Session;
+static SessionBackend *s_backend = nullptr;
 
-class SessionManager : public QObject
+SessionBackend::SessionBackend(QObject *parent)
+    : QObject(parent)
 {
-    Q_OBJECT
-public:
-    explicit SessionManager(QObject *parent = nullptr);
-    ~SessionManager();
+}
 
-    bool registerWithDBus();
+SessionBackend::~SessionBackend()
+{
+}
 
-public Q_SLOTS:
-    void SetEnvironment(const QString &key, const QString &value);
-    void UnsetEnvironment(const QString &key);
-    void SetIdle(bool idle);
-    void Logout();
+SessionBackend *SessionBackend::instance()
+{
+    static QMutex mutex;
+    QMutexLocker lock(&mutex);
 
-private:
-    Session *m_session = nullptr;
-};
-
-#endif // SESSIONMANAGER_H
+    if (s_backend)
+        return s_backend;
+    if (LogindBackend::exists())
+        s_backend = new LogindBackend();
+    else
+        s_backend = new FakeBackend();
+    return s_backend;
+}

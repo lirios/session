@@ -79,6 +79,11 @@ void SessionManager::UnsetEnvironment(const QString &key)
         m_session->unsetEnvironment(key);
 }
 
+void SessionManager::SetIdle(bool idle)
+{
+    SessionBackend::instance()->setIdle(idle);
+}
+
 void SessionManager::Logout()
 {
     if (m_session)

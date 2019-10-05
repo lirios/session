@@ -21,30 +21,43 @@
  * $END_LICENSE$
  ***************************************************************************/
 
-#ifndef SESSIONMANAGER_H
-#define SESSIONMANAGER_H
+#ifndef LOGINDBACKEND_H
+#define LOGINDBACKEND_H
 
-#include <QObject>
+#include "sessionbackend.h"
 
-class Session;
-
-class SessionManager : public QObject
+class LogindBackend : public SessionBackend
 {
     Q_OBJECT
 public:
-    explicit SessionManager(QObject *parent = nullptr);
-    ~SessionManager();
+    LogindBackend();
+    ~LogindBackend();
 
-    bool registerWithDBus();
+    QString name() const;
 
-public Q_SLOTS:
-    void SetEnvironment(const QString &key, const QString &value);
-    void UnsetEnvironment(const QString &key);
-    void SetIdle(bool idle);
-    void Logout();
+    void setIdle(bool value);
+
+    void lockSession();
+    void unlockSession();
+
+    void switchToVt(quint32 vt);
+
+    static bool exists();
 
 private:
-    Session *m_session = nullptr;
+    int m_powerButtonFd = -1;
+    int m_inhibitFd = -1;
+
+private Q_SLOTS:
+    void setupInhibitors();
+    void handleConnectedChanged(bool connected);
+    void handleInhibited(const QString &who, const QString &why, int fd);
+    void handleUninhibited(int fd);
+    void prepareForSleep(bool arg);
+    void prepareForShutdown(bool arg);
+    void devicePaused(quint32 devMajor, quint32 devMinor, const QString &type);
+    void handleSessionLocked();
+    void handleSessionUnlocked();
 };
 
-#endif // SESSIONMANAGER_H
+#endif // LOGINDBACKEND_H

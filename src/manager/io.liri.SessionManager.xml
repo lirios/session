@@ -8,6 +8,9 @@
     <method name="UnsetEnvironment">
       <arg name="key" type="s" direction="in"/>
     </method>
+    <method name="SetIdle">
+      <arg name="idle" type="b" direction="in"/>
+    </method>
     <method name="Logout"/>
   </interface>
 </node>
