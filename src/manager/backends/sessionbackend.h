@@ -21,30 +21,33 @@
  * $END_LICENSE$
  ***************************************************************************/
 
-#ifndef SESSIONMANAGER_H
-#define SESSIONMANAGER_H
+#ifndef SESSIONBACKEND_H
+#define SESSIONBACKEND_H
 
 #include <QObject>
 
-class Session;
-
-class SessionManager : public QObject
+class SessionBackend : public QObject
 {
     Q_OBJECT
 public:
-    explicit SessionManager(QObject *parent = nullptr);
-    ~SessionManager();
+    SessionBackend(QObject *parent = nullptr);
+    virtual ~SessionBackend();
 
-    bool registerWithDBus();
+    virtual QString name() const = 0;
 
-public Q_SLOTS:
-    void SetEnvironment(const QString &key, const QString &value);
-    void UnsetEnvironment(const QString &key);
-    void SetIdle(bool idle);
-    void Logout();
+    virtual void setIdle(bool value) = 0;
 
-private:
-    Session *m_session = nullptr;
+    virtual void lockSession() = 0;
+    virtual void unlockSession() = 0;
+
+    virtual void switchToVt(quint32 vt) = 0;
+
+    static SessionBackend *instance();
+
+Q_SIGNALS:
+    void sessionLocked();
+    void sessionUnlocked();
+    void shutdownRequested();
 };
 
-#endif // SESSIONMANAGER_H
+#endif // SESSIONBACKEND_H

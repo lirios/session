@@ -21,30 +21,40 @@
  * $END_LICENSE$
  ***************************************************************************/
 
-#ifndef SESSIONMANAGER_H
-#define SESSIONMANAGER_H
+#include "fakebackend.h"
 
-#include <QObject>
-
-class Session;
-
-class SessionManager : public QObject
+FakeBackend::FakeBackend()
+    : SessionBackend()
 {
-    Q_OBJECT
-public:
-    explicit SessionManager(QObject *parent = nullptr);
-    ~SessionManager();
+}
 
-    bool registerWithDBus();
+QString FakeBackend::name() const
+{
+    return QStringLiteral("fake");
+}
 
-public Q_SLOTS:
-    void SetEnvironment(const QString &key, const QString &value);
-    void UnsetEnvironment(const QString &key);
-    void SetIdle(bool idle);
-    void Logout();
+void FakeBackend::setIdle(bool value)
+{
+    Q_UNUSED(value)
+}
 
-private:
-    Session *m_session = nullptr;
-};
+void FakeBackend::lockSession()
+{
+}
 
-#endif // SESSIONMANAGER_H
+void FakeBackend::unlockSession()
+{
+}
+
+void FakeBackend::locked()
+{
+}
+
+void FakeBackend::unlocked()
+{
+}
+
+void FakeBackend::switchToVt(quint32 vt)
+{
+    Q_UNUSED(vt)
+}

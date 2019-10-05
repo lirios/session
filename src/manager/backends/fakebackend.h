@@ -1,7 +1,10 @@
 /****************************************************************************
  * This file is part of Liri.
  *
- * Copyright (C) 2019 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
+ * Copyright (C) 2018 Pier Luigi Fiorini
+ *
+ * Author(s):
+ *    Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
  *
  * $BEGIN_LICENSE:GPL3+$
  *
@@ -21,30 +24,28 @@
  * $END_LICENSE$
  ***************************************************************************/
 
-#ifndef SESSIONMANAGER_H
-#define SESSIONMANAGER_H
+#ifndef FAKEBACKEND_H
+#define FAKEBACKEND_H
 
-#include <QObject>
+#include "sessionbackend.h"
 
-class Session;
-
-class SessionManager : public QObject
+class FakeBackend : public SessionBackend
 {
     Q_OBJECT
 public:
-    explicit SessionManager(QObject *parent = nullptr);
-    ~SessionManager();
+    FakeBackend();
 
-    bool registerWithDBus();
+    QString name() const;
 
-public Q_SLOTS:
-    void SetEnvironment(const QString &key, const QString &value);
-    void UnsetEnvironment(const QString &key);
-    void SetIdle(bool idle);
-    void Logout();
+    void setIdle(bool value);
 
-private:
-    Session *m_session = nullptr;
+    void lockSession();
+    void unlockSession();
+
+    void locked();
+    void unlocked();
+
+    void switchToVt(quint32 vt);
 };
 
-#endif // SESSIONMANAGER_H
+#endif // FAKEBACKEND_H

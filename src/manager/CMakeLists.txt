@@ -36,6 +36,12 @@ liri_add_executable(LiriSession
     SOURCES
         dbus/screensaver.cpp
         dbus/screensaver.h
+        backends/fakebackend.cpp
+        backends/fakebackend.h
+        backends/logindbackend.cpp
+        backends/logindbackend.h
+        backends/sessionbackend.cpp
+        backends/sessionbackend.h
         diagnostics.cpp
         diagnostics.h
         main.cpp
