@@ -24,6 +24,7 @@
 #include <QDBusConnection>
 #include <QStandardPaths>
 
+#include "backends/sessionbackend.h"
 #include "session.h"
 #include "sessionmanager.h"
 #include "sessionmanager_adaptor.h"
@@ -36,6 +37,11 @@ SessionManager::SessionManager(QObject *parent)
     , m_session(qobject_cast<Session *>(parent))
 {
     new SessionManagerAdaptor(this);
+
+    connect(SessionBackend::instance(), &SessionBackend::sessionLocked,
+            this, &SessionManager::Locked);
+    connect(SessionBackend::instance(), &SessionBackend::sessionUnlocked,
+            this, &SessionManager::Unlocked);
 }
 
 SessionManager::~SessionManager()
@@ -82,6 +88,16 @@ void SessionManager::UnsetEnvironment(const QString &key)
 void SessionManager::SetIdle(bool idle)
 {
     SessionBackend::instance()->setIdle(idle);
+}
+
+void SessionManager::Lock()
+{
+    SessionBackend::instance()->lockSession();
+}
+
+void SessionManager::Unlock()
+{
+    SessionBackend::instance()->unlockSession();
 }
 
 void SessionManager::Logout()

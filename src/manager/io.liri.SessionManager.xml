@@ -11,6 +11,10 @@
     <method name="SetIdle">
       <arg name="idle" type="b" direction="in"/>
     </method>
+    <method name="Lock"/>
+    <method name="Unlock"/>
     <method name="Logout"/>
+    <signal name="Locked"/>
+    <signal name="Unlocked"/>
   </interface>
 </node>

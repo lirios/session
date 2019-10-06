@@ -37,10 +37,16 @@ public:
 
     bool registerWithDBus();
 
+Q_SIGNALS:
+    void Locked();
+    void Unlocked();
+
 public Q_SLOTS:
     void SetEnvironment(const QString &key, const QString &value);
     void UnsetEnvironment(const QString &key);
     void SetIdle(bool idle);
+    void Lock();
+    void Unlock();
     void Logout();
 
 private:
