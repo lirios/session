@@ -139,8 +139,7 @@ bool Session::initialize()
     qInfo("%s", qPrintable(Diagnostics::systemInformation().trimmed()));
 
     // Register D-Bus objects
-    if (!m_screenSaver->registerWithDBus())
-        return false;
+    m_screenSaver->registerWithDBus();
     if (!m_manager->registerWithDBus())
         return false;
 
