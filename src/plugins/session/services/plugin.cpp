@@ -45,7 +45,6 @@ bool ServicesPlugin::start(const QStringList &args)
     Q_UNUSED(args)
 
     startService(QStringLiteral("io.liri.Daemon"));
-    startService(QStringLiteral("io.liri.Launcher"));
 
     return true;
 }
@@ -83,46 +82,10 @@ void ServicesPlugin::startService(const QString &name)
     auto reply = interface->startService(name);
     if (reply.isValid()) {
         auto pidReply = interface->servicePid(name);
-        if (pidReply.isValid()) {
+        if (pidReply.isValid())
             m_pids.append(pidReply.value());
-
-            if (name == QStringLiteral("io.liri.Launcher"))
-                setEnvironment();
-        }
     } else {
         qCWarning(lcSession, "Failed to start \"%s\" D-Bus service: %s",
                   qPrintable(name), qPrintable(reply.error().message()));
-    }
-}
-
-void ServicesPlugin::setEnvironment()
-{
-    QStringList whitelist = {
-        QStringLiteral("XDG_DATA_HOME"),
-        QStringLiteral("XDG_DATA_DIRS"),
-        QStringLiteral("XDG_CACHE_HOME"),
-        QStringLiteral("XDG_CONFIG_HOME"),
-        QStringLiteral("XDG_CONFIG_DIRS"),
-        QStringLiteral("DESKTOP_SESSION"),
-        QStringLiteral("XDG_MENU_PREFIX"),
-        QStringLiteral("XDG_CURRENT_DESKTOP"),
-        QStringLiteral("XDG_SESSION_DESKTOP"),
-    };
-
-    auto env = QProcessEnvironment::systemEnvironment();
-    const auto keys = env.keys();
-    for (const auto &key : keys) {
-        if (!whitelist.contains(key))
-            continue;
-
-        const auto value = env.value(key);
-
-        auto msg = QDBusMessage::createMethodCall(
-                    QStringLiteral("io.liri.Launcher"),
-                    QStringLiteral("/io/liri/Launcher"),
-                    QStringLiteral("io.liri.Launcher"),
-                    QStringLiteral("SetEnvironment"));
-        msg.setArguments(QVariantList() << key << value);
-        QDBusConnection::sessionBus().call(msg);
     }
 }

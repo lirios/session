@@ -53,6 +53,22 @@ static void setupEnvironment()
     qputenv("XDG_MENU_PREFIX", QByteArrayLiteral("liri-"));
     qputenv("XDG_CURRENT_DESKTOP", QByteArrayLiteral("X-Liri"));
     qputenv("XDG_SESSION_DESKTOP", QByteArrayLiteral("liri"));
+
+    // Set environment for the programs we will launch from here
+#if QT_VERSION >= QT_VERSION_CHECK(5, 11, 0)
+    qputenv("QT_QPA_PLATFORM", "wayland;xcb");
+#else
+    qputenv("QT_QPA_PLATFORM", "wayland");
+#endif
+    qputenv("QT_QPA_PLATFORMTHEME", "liri");
+    qputenv("QT_WAYLAND_SHELL_INTEGRATION", "xdg-shell-v6");
+    qputenv("QT_QUICK_CONTROLS_1_STYLE", "Flat");
+    qputenv("QT_QUICK_CONTROLS_STYLE", "material");
+    qputenv("QT_WAYLAND_DECORATION", "material");
+    qputenv("QT_AUTO_SCREEN_SCALE_FACTOR", "1");
+    qputenv("XCURSOR_THEME", "Paper");
+    qunsetenv("QT_SCALE_FACTOR");
+    qunsetenv("QT_SCREEN_SCALE_FACTORS");
 }
 
 int main(int argc, char *argv[])
@@ -106,7 +122,7 @@ int main(int argc, char *argv[])
     QSharedPointer<Session> session(new Session);
 
     // Arguments
-    const QStringList disabledModules = parser.value(disableModulesOption).trimmed().split(QLatin1Char(','));
+    const QStringList disabledModulesList = parser.value(disableModulesOption).trimmed().split(QLatin1Char(','));
     const QStringList shellArgs = parser.positionalArguments();
 #ifdef ENABLE_SYSTEMD
     const bool systemdSupport = !parser.isSet(noSystemdOption);
@@ -120,12 +136,35 @@ int main(int argc, char *argv[])
     // Set systemd flag
     session->setSystemdEnabled(systemdSupport);
 
-    // Set shell arguments
-    session->setModuleArguments(QStringLiteral("io.liri.SessionManager.Modules.Shell"), shellArgs);
+    // Disable incompatible modules
+    QSet<QString> disabledModules = disabledModulesList.toSet();
+    if (systemdSupport) {
+        disabledModules.insert(QStringLiteral("io.liri.SessionManager.Modules.Services"));
+        disabledModules.insert(QStringLiteral("io.liri.SessionManager.Modules.Shell"));
+    } else {
+        // Set shell arguments
+        session->setModuleArguments(QStringLiteral("io.liri.SessionManager.Modules.Shell"), shellArgs);
+    }
 
     // Disable modules
     for (const auto &name : disabledModules)
         session->disableModule(name);
+
+    // We ship autostart entries with Hidden=true into $datadir/liri-session/systemd-user/autostart
+    // for those entries that are replaced by units, so they are not started twice
+    if (systemdSupport) {
+        auto newValue = QDir::home().absoluteFilePath(QStringLiteral(".local/share/liri-session/systemd-user")).toUtf8();
+        newValue.append(':');
+        newValue.append(DATADIR "/liri-session/systemd-user");
+        auto value = qgetenv("XDG_CONFIG_DIRS");
+        if (value.isEmpty()) {
+            value = newValue;
+        } else {
+            value.prepend(':');
+            value.prepend(newValue);
+        }
+        qputenv("XDG_CONFIG_DIRS", value);
+    }
 
     // Go
     QTimer::singleShot(0, &app, [session] {

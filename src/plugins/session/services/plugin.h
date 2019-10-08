@@ -48,7 +48,6 @@ private:
     QVector<uint> m_pids;
 
     void startService(const QString &name);
-    void setEnvironment();
 };
 
 #endif // SERVICESPLUGIN_H

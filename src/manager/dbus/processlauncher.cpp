@@ -24,6 +24,8 @@
 #include <QDBusConnection>
 #include <QDBusError>
 #include <QFile>
+#include <QFileInfo>
+#include <QRegularExpression>
 #include <QStandardPaths>
 
 #include <LiriXdg/AutoStart>
@@ -97,6 +99,8 @@ bool ProcessLauncher::LaunchApplication(const QString &appId)
                 << QStringLiteral("--user")
                 << QStringLiteral("--unit=run-%1").arg(appId)
                 << QStringLiteral("--description=Application %1").arg(appId)
+                << QStringLiteral("--property=Requisite=liri-shell.target")
+                << QStringLiteral("--property=After=liri-shell.target")
                 << QStringLiteral("--property=BindsTo=liri-session.target")
                 << desktop->expandExecString().join(QLatin1Char(' '));
 
@@ -129,12 +133,14 @@ bool ProcessLauncher::LaunchDesktopFile(const QString &path, const QStringList &
 
     if (m_session->isSystemdEnabled() && !desktop->isDBusActivatable()) {
         // Run with systemd-run
-        const QString appId = Liri::DesktopFile::id(path).replace(QStringLiteral(".desktop"), QString());
+        const QString appId = id(path);
         QStringList args = QStringList()
                 << QStringLiteral("--user")
                 << QStringLiteral("--unit=run-%1").arg(appId)
                 << QStringLiteral("--description=Application %1").arg(appId)
                 << QStringLiteral("--property=SourcePath=%1").arg(path)
+                << QStringLiteral("--property=Requisite=liri-shell.target")
+                << QStringLiteral("--property=After=liri-shell.target")
                 << QStringLiteral("--property=BindsTo=liri-session.target")
                 << desktop->expandExecString(urls).join(QLatin1Char(' '));
 
@@ -165,6 +171,8 @@ bool ProcessLauncher::LaunchCommand(const QString &command)
                 << QStringLiteral("--user")
                 << QStringLiteral("--scope")
                 << QStringLiteral("--description=Run command: %1").arg(command)
+                << QStringLiteral("--property=Requisite=liri-shell.target")
+                << QStringLiteral("--property=After=liri-shell.target")
                 << QStringLiteral("--property=BindsTo=liri-session.target")
                 << command;
 
@@ -183,6 +191,24 @@ bool ProcessLauncher::LaunchCommand(const QString &command)
         QProcess *process = new QProcess(this);
         return process->startDetached(command);
     }
+}
+
+QString ProcessLauncher::id(const QString &fileName) const
+{
+    const QFileInfo info(fileName);
+
+    QRegularExpression suffixRx(QStringLiteral(".desktop$"));
+    QLatin1Char slashChar('/');
+    QLatin1Char dashChar('-');
+
+    QString id = info.canonicalFilePath();
+    id.replace(info.canonicalPath(), QString());
+    if (id.startsWith(slashChar))
+        id.remove(0, 1);
+    id.replace(slashChar, dashChar);
+    id.replace(suffixRx, QString());
+
+    return id;
 }
 
 void ProcessLauncher::handleReadyReadStandardOutput()

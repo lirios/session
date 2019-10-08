@@ -41,6 +41,10 @@ public:
     bool startUnit(const QString &name, const QString &mode);
     bool stopUnit(const QString &name, const QString &mode);
 
+    bool setEnvironment(const QProcessEnvironment &sysEnv);
+    bool unsetEnvironment(const QString &key);
+    bool unsetEnvironment(const QStringList &keys);
+
 private:
     bool m_available = false;
 };

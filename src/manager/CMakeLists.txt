@@ -12,6 +12,11 @@ if(LIRI_SESSION_DEVELOPMENT_BUILD)
 endif()
 
 # Absolute paths
+if(IS_ABSOLUTE "${INSTALL_DATADIR}")
+    set(DATADIR "${INSTALL_DATADIR}")
+else()
+    set(DATADIR "${CMAKE_INSTALL_PREFIX}/${INSTALL_DATADIR}")
+endif()
 if(IS_ABSOLUTE "${INSTALL_PLUGINSDIR}")
     set(PLUGINSDIR "${INSTALL_PLUGINSDIR}")
 else()
@@ -29,6 +34,9 @@ endif()
 if(NOT TARGET Liri::Logind)
     find_package(Liri1Logind)
 endif()
+if(NOT TARGET Liri::Xdg)
+    find_package(Liri1Xdg REQUIRED)
+endif()
 
 liri_add_executable(LiriSession
     OUTPUT_NAME
@@ -40,6 +48,8 @@ liri_add_executable(LiriSession
         backends/logindbackend.h
         backends/sessionbackend.cpp
         backends/sessionbackend.h
+        dbus/processlauncher.cpp
+        dbus/processlauncher.h
         dbus/screensaver.cpp
         dbus/screensaver.h
         dbus/sessionmanager.cpp
@@ -59,12 +69,14 @@ liri_add_executable(LiriSession
         utils.h
         ${QM_FILES}
     DBUS_ADAPTOR_SOURCES
+        "${CMAKE_CURRENT_SOURCE_DIR}/dbus/io.liri.Launcher.xml"
         "${CMAKE_CURRENT_SOURCE_DIR}/io.liri.SessionManager.xml"
     DEFINES
         QT_NO_CAST_FROM_ASCII
         QT_NO_FOREACH
         LIRI_SESSION_VERSION="${PROJECT_VERSION}"
         ${DEFINES}
+        DATADIR="${DATADIR}"
         PLUGINSDIR="${PLUGINSDIR}"
     LIBRARIES
         Qt5::Core
@@ -73,6 +85,7 @@ liri_add_executable(LiriSession
         Liri::Session
         Liri::SessionPrivate
         Liri::Logind
+        Liri::Xdg
         autostart
         services
         shell
