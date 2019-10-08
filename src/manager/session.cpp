@@ -31,11 +31,11 @@
 #include <libsigwatch/sigwatch.h>
 
 #include "dbus/screensaver.h"
+#include "dbus/sessionmanager.h"
 #include "diagnostics.h"
 #include "gitsha1.h"
 #include "pluginregistry.h"
 #include "session.h"
-#include "sessionmanager.h"
 #include "systemdmanager.h"
 #include "utils.h"
 

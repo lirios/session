@@ -34,14 +34,16 @@ liri_add_executable(LiriSession
     OUTPUT_NAME
         "liri-session"
     SOURCES
-        dbus/screensaver.cpp
-        dbus/screensaver.h
         backends/fakebackend.cpp
         backends/fakebackend.h
         backends/logindbackend.cpp
         backends/logindbackend.h
         backends/sessionbackend.cpp
         backends/sessionbackend.h
+        dbus/screensaver.cpp
+        dbus/screensaver.h
+        dbus/sessionmanager.cpp
+        dbus/sessionmanager.h
         diagnostics.cpp
         diagnostics.h
         main.cpp
@@ -49,8 +51,6 @@ liri_add_executable(LiriSession
         pluginregistry.h
         session.cpp
         session.h
-        sessionmanager.cpp
-        sessionmanager.h
         systemdmanager.cpp
         systemdmanager.h
         translation.cpp
