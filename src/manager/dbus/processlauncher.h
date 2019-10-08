@@ -49,6 +49,8 @@ public:
 private:
     Session *m_session = nullptr;
 
+    QString id(const QString &fileName) const;
+
 private Q_SLOTS:
     void handleReadyReadStandardOutput();
     void handleReadyReadStandardError();

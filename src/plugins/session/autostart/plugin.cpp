@@ -23,6 +23,7 @@
 
 #include <QDBusConnection>
 #include <QDBusMessage>
+#include <QDBusPendingCall>
 
 #include <LiriXdg/AutoStart>
 #include <LiriXdg/DesktopFile>
@@ -59,6 +60,13 @@ bool AutostartPlugin::start(const QStringList &args)
         //if (!entry.isSuitable(true, QLatin1String("GNOME")) && !entry.isSuitable(true, QLatin1String("KDE")))
         //continue;
 
+        // Ignore those entries hidden under systemd
+        if (isSystemdEnabled()) {
+            bool hidden = entry.value(QStringLiteral("X-GNOME-HiddenUnderSystemd")).toString().trimmed().compare(QStringLiteral("true"), Qt::CaseInsensitive);
+            if (hidden)
+                continue;
+        }
+
         qCDebug(lcSession) << "Autostart entry:" << entry.name() << "from" << entry.fileName();
         m_desktopFiles.append(entry.fileName());
         launchDesktopFile(entry.fileName());
@@ -91,7 +99,7 @@ void AutostartPlugin::launchDesktopFile(const QString &fileName)
     QVariantList args;
     args.append(fileName);
     msg.setArguments(args);
-    QDBusConnection::sessionBus().send(msg);
+    QDBusConnection::sessionBus().asyncCall(msg);
 }
 
 void AutostartPlugin::terminateDesktopFile(const QString &fileName)
@@ -104,5 +112,5 @@ void AutostartPlugin::terminateDesktopFile(const QString &fileName)
     QVariantList args;
     args.append(fileName);
     msg.setArguments(args);
-    QDBusConnection::sessionBus().send(msg);
+    QDBusConnection::sessionBus().asyncCall(msg);
 }

@@ -34,6 +34,7 @@
 Q_DECLARE_LOGGING_CATEGORY(lcSession)
 
 class PluginRegistry;
+class ProcessLauncher;
 class ScreenSaver;
 class SessionManager;
 class SystemdManager;
@@ -69,6 +70,7 @@ private:
     QMap<QString, QString> m_env;
     bool m_systemdEnabled = false;
     SystemdManager *m_systemd = nullptr;
+    ProcessLauncher *m_processLauncher = nullptr;
     ScreenSaver *m_screenSaver = nullptr;
     SessionManager *m_manager = nullptr;
     QStringList m_disabledModules;

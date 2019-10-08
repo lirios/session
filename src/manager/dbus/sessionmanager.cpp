@@ -22,7 +22,6 @@
  ***************************************************************************/
 
 #include <QDBusConnection>
-#include <QStandardPaths>
 
 #include "backends/sessionbackend.h"
 #include "session.h"

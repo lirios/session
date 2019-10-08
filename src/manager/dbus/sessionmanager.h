@@ -25,6 +25,7 @@
 #define SESSIONMANAGER_H
 
 #include <QObject>
+#include <QProcess>
 
 class Session;
 

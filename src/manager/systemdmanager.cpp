@@ -97,3 +97,46 @@ bool SystemdManager::stopUnit(const QString &name, const QString &mode)
 
     return true;
 }
+
+bool SystemdManager::setEnvironment(const QProcessEnvironment &sysEnv)
+{
+    auto msg = QDBusMessage::createMethodCall(
+                QStringLiteral("org.freedesktop.systemd1"),
+                QStringLiteral("/org/freedesktop/systemd1"),
+                QStringLiteral("org.freedesktop.systemd1.Manager"),
+                QStringLiteral("SetEnvironment"));
+    msg.setAutoStartService(false);
+    msg.setArguments(QVariantList() << sysEnv.toStringList());
+    QDBusReply<void> reply = QDBusConnection::sessionBus().call(msg);
+    if (!reply.isValid()) {
+        qCWarning(lcSession, "Failed to update systemd environment: %s",
+                  qPrintable(reply.error().message()));
+        return false;
+    }
+
+    return true;
+}
+
+bool SystemdManager::unsetEnvironment(const QString &key)
+{
+    return unsetEnvironment(QStringList() << key);
+}
+
+bool SystemdManager::unsetEnvironment(const QStringList &keys)
+{
+    auto msg = QDBusMessage::createMethodCall(
+                QStringLiteral("org.freedesktop.systemd1"),
+                QStringLiteral("/org/freedesktop/systemd1"),
+                QStringLiteral("org.freedesktop.systemd1.Manager"),
+                QStringLiteral("UnsetEnvironment"));
+    msg.setAutoStartService(false);
+    msg.setArguments(QVariantList() << keys);
+    QDBusReply<void> reply = QDBusConnection::sessionBus().call(msg);
+    if (!reply.isValid()) {
+        qCWarning(lcSession, "Failed to unset environment variables from systemd: %s",
+                  qPrintable(reply.error().message()));
+        return false;
+    }
+
+    return true;
+}
