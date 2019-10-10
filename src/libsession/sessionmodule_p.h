@@ -21,48 +21,29 @@
  * $END_LICENSE$
  ***************************************************************************/
 
-#include <QMap>
+#ifndef LIRI_SESSIONMODULE_P_H
+#define LIRI_SESSIONMODULE_P_H
 
-#include "sessionmodule.h"
-#include "sessionmodule_p.h"
+#include <LiriSession/SessionModule>
 
 namespace Liri {
 
-// SessionModulePrivate
-
-SessionModulePrivate::SessionModulePrivate(SessionModule *self)
-    : q_ptr(self)
+class LIRISESSION_EXPORT SessionModulePrivate
 {
-}
+    Q_DECLARE_PUBLIC(SessionModule)
+public:
+    SessionModulePrivate(SessionModule *self);
 
-void SessionModulePrivate::setSystemdEnabled(bool enabled)
-{
-    Q_Q(SessionModule);
+    void setSystemdEnabled(bool enabled);
 
-    if (systemd == enabled)
-        return;
+    static SessionModulePrivate *get(SessionModule *module) { return module->d_func(); }
 
-    systemd = enabled;
-    emit q->systemdEnabledChanged();
-}
+    bool systemd = false;
 
-// SessionModule
-
-SessionModule::SessionModule(QObject *parent)
-    : QObject(parent)
-    , d_ptr(new SessionModulePrivate(this))
-{
-}
-
-SessionModule::~SessionModule()
-{
-    delete d_ptr;
-}
-
-bool SessionModule::isSystemdEnabled() const
-{
-    Q_D(const SessionModule);
-    return d->systemd;
-}
+protected:
+    SessionModule *q_ptr = nullptr;
+};
 
 } // namespace Liri
+
+#endif // LIRI_SESSIONMODULE_P_H

@@ -71,6 +71,7 @@ liri_add_executable(LiriSession
         Qt5::DBus
         Sigwatch
         Liri::Session
+        Liri::SessionPrivate
         Liri::Logind
         autostart
         services

@@ -39,6 +39,7 @@ class LIRISESSION_EXPORT SessionModule : public QObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(SessionModule)
+    Q_PROPERTY(bool systemdEnabled READ isSystemdEnabled NOTIFY systemdEnabledChanged)
 public:
     enum StartupPhase {
         EarlyInitialization,
@@ -54,10 +55,13 @@ public:
 
     virtual StartupPhase startupPhase() const = 0;
 
+    bool isSystemdEnabled() const;
+
     virtual bool start(const QStringList &args = QStringList()) = 0;
     virtual bool stop() = 0;
 
 Q_SIGNALS:
+    void systemdEnabledChanged();
     void environmentChangeRequested(const QString &key, const QString &value);
     void shutdownRequested();
 
