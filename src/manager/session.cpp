@@ -30,6 +30,8 @@
 
 #include <libsigwatch/sigwatch.h>
 
+#include <LiriSession/private/sessionmodule_p.h>
+
 #include "dbus/screensaver.h"
 #include "dbus/sessionmanager.h"
 #include "diagnostics.h"
@@ -160,6 +162,8 @@ bool Session::initialize()
                           qPrintable(name));
                 continue;
             }
+
+            Liri::SessionModulePrivate::get(module)->setSystemdEnabled(m_systemdEnabled);
 
             m_modules[module->startupPhase()].append(module);
         }
