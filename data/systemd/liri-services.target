@@ -1,7 +1,5 @@
 [Unit]
 Description=Services used by the Liri graphical user session
-BindsTo=liri-launcher.service
-After=liri-launcher.service
 StopWhenUnneeded=yes
 # Never manually start or stop
 RefuseManualStart=yes

@@ -14,11 +14,6 @@ configure_file(
     @ONLY
 )
 configure_file(
-    "liri-launcher.service.in"
-    "${CMAKE_CURRENT_BINARY_DIR}/liri-launcher.service"
-    @ONLY
-)
-configure_file(
     "liri-session-shutdown.service.in"
     "${CMAKE_CURRENT_BINARY_DIR}/liri-session-shutdown.service"
     @ONLY
@@ -28,7 +23,6 @@ install(
     FILES
         "${CMAKE_CURRENT_BINARY_DIR}/liri-daemon-locale.service"
         liri-daemons.target
-        "${CMAKE_CURRENT_BINARY_DIR}/liri-launcher.service"
         liri-services.target
         liri-session-pre.target
         "${CMAKE_CURRENT_BINARY_DIR}/liri-session-shutdown.service"
