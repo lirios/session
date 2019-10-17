@@ -44,17 +44,17 @@ static void setupEnvironment()
     if (qEnvironmentVariableIsEmpty("XDG_CACHE_HOME"))
         qputenv("XDG_CACHE_HOME", QDir::home().absoluteFilePath(QStringLiteral(".cache")).toLocal8Bit());
     if (qEnvironmentVariableIsEmpty("XDG_DATA_DIRS"))
-        qputenv("XDG_DATA_DIRS", QByteArrayLiteral("/usr/local/share/:/usr/share/"));
+        qputenv("XDG_DATA_DIRS", "/usr/local/share/:/usr/share/");
     if (qEnvironmentVariableIsEmpty("XDG_CONFIG_DIRS"))
-        qputenv("XDG_CONFIG_DIRS", QByteArrayLiteral("/etc/xdg"));
+        qputenv("XDG_CONFIG_DIRS", "/etc/xdg");
     if (qEnvironmentVariableIsEmpty("XDG_DESKTOP_PORTAL_DIR"))
         qputenv("XDG_DESKTOP_PORTAL_DIR", DATADIR "/xdg-desktop-portal/portals");
 
     // Environment
-    qputenv("DESKTOP_SESSION", QByteArrayLiteral("Liri"));
-    qputenv("XDG_MENU_PREFIX", QByteArrayLiteral("liri-"));
-    qputenv("XDG_CURRENT_DESKTOP", QByteArrayLiteral("X-Liri"));
-    qputenv("XDG_SESSION_DESKTOP", QByteArrayLiteral("liri"));
+    qputenv("DESKTOP_SESSION", "Liri");
+    qputenv("XDG_MENU_PREFIX", "liri-");
+    qputenv("XDG_CURRENT_DESKTOP", "X-Liri");
+    qputenv("XDG_SESSION_DESKTOP", "liri");
 
     // Set environment for the programs we will launch from here
 #if QT_VERSION >= QT_VERSION_CHECK(5, 11, 0)
