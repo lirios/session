@@ -97,6 +97,7 @@ bool ProcessLauncher::LaunchApplication(const QString &appId)
         // Run with systemd-run
         QStringList args = QStringList()
                 << QStringLiteral("--user")
+                << QStringLiteral("--scope")
                 << QStringLiteral("--description=Application %1").arg(appId)
                 << QStringLiteral("--property=Requisite=liri-shell.target")
                 << QStringLiteral("--property=After=liri-shell.target")
@@ -135,6 +136,7 @@ bool ProcessLauncher::LaunchDesktopFile(const QString &path, const QStringList &
         const QString appId = id(path);
         QStringList args = QStringList()
                 << QStringLiteral("--user")
+                << QStringLiteral("--scope")
                 << QStringLiteral("--description=Application %1").arg(appId)
                 << QStringLiteral("--property=SourcePath=%1").arg(path)
                 << QStringLiteral("--property=Requisite=liri-shell.target")
