@@ -47,6 +47,8 @@ static void setupEnvironment()
         qputenv("XDG_DATA_DIRS", QByteArrayLiteral("/usr/local/share/:/usr/share/"));
     if (qEnvironmentVariableIsEmpty("XDG_CONFIG_DIRS"))
         qputenv("XDG_CONFIG_DIRS", QByteArrayLiteral("/etc/xdg"));
+    if (qEnvironmentVariableIsEmpty("XDG_DESKTOP_PORTAL_DIR"))
+        qputenv("XDG_DESKTOP_PORTAL_DIR", DATADIR "/xdg-desktop-portal/portals");
 
     // Environment
     qputenv("DESKTOP_SESSION", QByteArrayLiteral("Liri"));
