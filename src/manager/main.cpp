@@ -28,7 +28,6 @@
 #include <QTimer>
 
 #include "session.h"
-#include "translation.h"
 
 #include <unistd.h>
 
@@ -91,10 +90,6 @@ int main(int argc, char *argv[])
     app.setApplicationVersion(QStringLiteral(LIRI_SESSION_VERSION));
     app.setOrganizationName(QStringLiteral("Liri"));
     app.setOrganizationDomain(QStringLiteral("liri.io"));
-
-    // Load translations
-    loadQtTranslations();
-    loadAppTranslations();
 
     // Command line parser
     QCommandLineParser parser;

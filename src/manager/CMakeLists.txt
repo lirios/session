@@ -63,8 +63,6 @@ liri_add_executable(LiriSession
         session.h
         systemdmanager.cpp
         systemdmanager.h
-        translation.cpp
-        translation.h
         utils.cpp
         utils.h
         ${QM_FILES}
