@@ -160,12 +160,12 @@ void ShellPlugin::handleServiceRegistered(const QString &serviceName)
         disconnect(m_serviceWatcher, &QDBusServiceWatcher::serviceRegistered,
                    this, &ShellPlugin::handleServiceRegistered);
 
+        // Now start the helper
+        startShellHelper();
+
         // The shell D-Bus service is registered, this means it's ready
         // and we can move on to the next session module
         m_loop->quit();
-
-        // Now start the helper
-        startShellHelper();
     }
 }
 
