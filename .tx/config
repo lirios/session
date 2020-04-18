@@ -6,4 +6,4 @@ type = DESKTOP
 source_lang = en
 source_file = src/manager/liri.desktop.in.in
 liri_dest_file = src/manager/liri.desktop.in
-file_filter = src/manager/translations/liri_<lang>.desktop
+file_filter = translations/manager/liri_<lang>.desktop

@@ -1,0 +1,8 @@
+[
+  {
+    "type": "desktop",
+    "source_file": "src/manager/liri.desktop.in.in",
+    "file_filter": "translations/manager/liri_<lang>.desktop",
+    "output_path": "src/manager/liri.desktop.in"
+  }
+]
