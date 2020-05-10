@@ -3,8 +3,8 @@ Session
 
 [![License](https://img.shields.io/badge/license-GPLv3.0-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.html)
 [![GitHub release](https://img.shields.io/github/release/lirios/session.svg)](https://github.com/lirios/session)
-[![CI](https://github.com/lirios/session/workflows/CI/badge.svg?branch=develop)](https://github.com/lirios/session/actions?query=workflow%3ACI)
 [![GitHub issues](https://img.shields.io/github/issues/lirios/session.svg)](https://github.com/lirios/session/issues)
+[![CI](https://github.com/lirios/session/workflows/CI/badge.svg?branch=develop)](https://github.com/lirios/session/actions?query=workflow%3ACI)
 
 The session is responsible for bootstrapping the initial environment and
 launching critical desktop services, including the shell, as well as
