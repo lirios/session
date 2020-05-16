@@ -2,8 +2,7 @@
 host = https://www.transifex.com
 
 [liri-session.session-entry]
-type = DESKTOP
+type = PO
 source_lang = en
-source_file = src/manager/liri.desktop.in.in
-liri_dest_file = src/manager/liri.desktop.in
-file_filter = translations/manager/liri_<lang>.desktop
+source_file = translations/manager/desktop.pot
+file_filter = translations/manager/desktop_<lang>.po
