@@ -4,6 +4,6 @@
     "source_file": "src/manager/liri.desktop.in.in",
     "dest_file": "src/manager/liri.desktop.in",
     "file_filter": "translations/manager/liri_<lang>.po",
-    "output_path": "translations/manager/manager.pot"
+    "output_path": "translations/manager/desktop.pot"
   }
 ]
