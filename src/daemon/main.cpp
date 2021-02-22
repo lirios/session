@@ -90,9 +90,11 @@ int main(int argc, char *argv[])
         }
 
         // Start a specific module with systemd, or all modules
+#ifdef ENABLE_SYSTEMD
         if (systemdSupport)
             daemon->loadModule(module);
         else
+#endif
             daemon->start();
     });
 
