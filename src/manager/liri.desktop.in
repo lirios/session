@@ -1,6 +1,7 @@
 [Desktop Entry]
 Name=Liri
 Name[da]=Liri
+Name[de]=Liri
 Name[it_IT]=Liri
 Name[lt]=Liri
 Name[pt_BR]=Liri
@@ -8,6 +9,7 @@ Name[ru_RU]=Liri
 Name[tr]=Liri
 Comment=QtQuick and Wayland based desktop environment
 Comment[da]=QtQuick- og Wayland-baseret skrivebordsmiljø
+Comment[de]=QtQuick- und Wayland-basierte Desktop-Umgebung
 Comment[it_IT]=Desktop environment basato su QtQuick e Wayland
 Comment[lt]=QtQuick ir Wayland pagrįsta darbalaukio aplinka
 Comment[pt_BR]=Ambiente de trabalho baseado no QtQuick e Wayland
