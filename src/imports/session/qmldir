@@ -1,0 +1,4 @@
+module Liri.Session
+plugin sessionplugin
+classname SessionPlugin
+typeinfo plugins.qmltypes

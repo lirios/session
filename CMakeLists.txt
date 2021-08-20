@@ -45,6 +45,7 @@ find_package(Qt5 "${QT_MIN_VERSION}"
 add_subdirectory(data/menu)
 add_subdirectory(data/settings)
 add_subdirectory(src/daemon)
+add_subdirectory(src/imports/session)
 add_subdirectory(src/manager)
 add_subdirectory(src/libdaemon)
 add_subdirectory(src/libsession)
