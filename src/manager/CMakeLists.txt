@@ -89,6 +89,8 @@ liri_add_executable(LiriSession
         shell
 )
 
+liri_finalize_executable(LiriSession)
+
 liri_add_executable(LiriSessionCtl
     OUTPUT_NAME
         "liri-session-ctl"
@@ -102,6 +104,8 @@ liri_add_executable(LiriSessionCtl
         Qt5::Core
         Qt5::DBus
 )
+
+liri_finalize_executable(LiriSessionCtl)
 
 if(IS_ABSOLUTE "${INSTALL_BINDIR}")
     set(BINDIR "${INSTALL_BINDIR}")

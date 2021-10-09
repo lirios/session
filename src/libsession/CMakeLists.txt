@@ -5,10 +5,6 @@ liri_add_module(Session
         sessionmodule.cpp
         sessionmodule.h
         sessionmodule_p.h
-    FORWARDING_HEADERS
-        SessionModule
-    PRIVATE_HEADERS
-        sessionmodule_p.h
     DEFINES
         QT_NO_CAST_FROM_ASCII
         QT_NO_FOREACH
@@ -17,3 +13,5 @@ liri_add_module(Session
     PKGCONFIG_DEPENDENCIES
         Qt5Core
 )
+
+liri_finalize_module(Session)

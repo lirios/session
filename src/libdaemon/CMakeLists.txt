@@ -11,8 +11,6 @@ liri_add_module(Daemon
     SOURCES
         daemonmodule.cpp
         daemonmodule.h
-    FORWARDING_HEADERS
-        DaemonModule
     DEFINES
         QT_NO_CAST_FROM_ASCII
         QT_NO_FOREACH
@@ -24,3 +22,5 @@ liri_add_module(Daemon
         Qt5Core
         Qt5DBus
 )
+
+liri_finalize_module(Daemon)

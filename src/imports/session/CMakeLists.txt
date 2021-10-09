@@ -16,3 +16,5 @@ liri_add_qml_plugin(session
         Qt5::Core
         Qt5::DBus
 )
+
+liri_finalize_qml_plugin(session)

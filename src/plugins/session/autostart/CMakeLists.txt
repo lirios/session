@@ -17,3 +17,5 @@ liri_add_plugin(autostart
         Liri::Xdg
     STATIC
 )
+
+liri_finalize_plugin(autostart)

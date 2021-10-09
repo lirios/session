@@ -19,3 +19,5 @@ liri_add_plugin(shell
         Liri::Session
     STATIC
 )
+
+liri_finalize_plugin(shell)

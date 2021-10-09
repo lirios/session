@@ -12,3 +12,5 @@ liri_add_plugin(services
         Liri::Session
     STATIC
 )
+
+liri_finalize_plugin(services)

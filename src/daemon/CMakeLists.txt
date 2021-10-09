@@ -42,3 +42,5 @@ liri_add_executable(LiriDaemon
         Sigwatch
         Liri::Daemon
 )
+
+liri_finalize_executable(LiriDaemon)

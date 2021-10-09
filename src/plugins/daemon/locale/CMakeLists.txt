@@ -15,3 +15,5 @@ liri_add_plugin(locale
         Liri::Daemon
         Liri::Qt5GSettings
 )
+
+liri_finalize_plugin(locale)
