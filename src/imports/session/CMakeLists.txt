@@ -1,8 +1,10 @@
-liri_add_qml_plugin(session
+liri_add_qml_plugin(SessionQmlPlugin
     MODULE_PATH
         "Liri/Session"
     VERSION
         "1.0"
+    OUTPUT_NAME
+        "sessionplugin"
     SOURCES
         plugin.cpp
         qmllauncher.cpp qmllauncher.h
@@ -17,4 +19,4 @@ liri_add_qml_plugin(session
         Qt5::DBus
 )
 
-liri_finalize_qml_plugin(session)
+liri_finalize_qml_plugin(SessionQmlPlugin)
