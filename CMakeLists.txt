@@ -18,6 +18,12 @@ set(QT_MIN_VERSION "5.10.0")
 ## Liri specific setup common for all modules:
 include(LiriSetup)
 
+## Only build on the appropriate platforms.
+if(NOT UNIX OR ANDROID)
+    message(NOTICE "Skipping the build as the condition \"UNIX OR ANDROID\" is not met.")
+    return()
+endif()
+
 ## Features:
 option(LIRI_SESSION_DEVELOPMENT_BUILD "Development build" OFF)
 add_feature_info("Session::DevelopmentBuild" LIRI_SESSION_DEVELOPMENT_BUILD "Build for development")
