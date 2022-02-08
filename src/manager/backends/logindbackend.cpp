@@ -47,8 +47,6 @@ LogindBackend::LogindBackend()
             this, &LogindBackend::prepareForSleep);
     connect(logind, &Logind::prepareForShutdown,
             this, &LogindBackend::prepareForShutdown);
-    connect(logind, &Logind::devicePaused,
-            this, &LogindBackend::devicePaused);
     connect(logind, &Logind::lockSessionRequested,
             this, &LogindBackend::handleSessionLocked);
     connect(logind, &Logind::unlockSessionRequested,
@@ -153,12 +151,6 @@ void LogindBackend::prepareForShutdown(bool arg)
     // Bring down the session before the system is shut down
     if (arg)
         emit shutdownRequested();
-}
-
-void LogindBackend::devicePaused(quint32 devMajor, quint32 devMinor, const QString &type)
-{
-    if (QString::compare(type, QStringLiteral("pause"), Qt::CaseInsensitive) == 0)
-        Logind::instance()->pauseDeviceComplete(devMajor, devMinor);
 }
 
 void LogindBackend::handleSessionLocked()

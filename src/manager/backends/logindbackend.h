@@ -55,7 +55,6 @@ private Q_SLOTS:
     void handleUninhibited(int fd);
     void prepareForSleep(bool arg);
     void prepareForShutdown(bool arg);
-    void devicePaused(quint32 devMajor, quint32 devMinor, const QString &type);
     void handleSessionLocked();
     void handleSessionUnlocked();
 };
