@@ -108,6 +108,11 @@ void LogindBackend::setupInhibitors()
                 QStringLiteral("Liri needs to logout before shutdown and lock the screen before sleep"),
                 Logind::InhibitShutdown | Logind::InhibitSleep,
                 Logind::Delay);
+    logind->inhibit(
+                QStringLiteral("Liri/Lid"),
+                QStringLiteral("Liri wants to handle when the lid is closed"),
+                Logind::InhibitLidSwitch,
+                Logind::Block);
 }
 
 void LogindBackend::handleConnectedChanged(bool connected)
