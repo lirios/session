@@ -24,18 +24,18 @@
 #include <QDBusConnection>
 #include <QDBusConnectionInterface>
 
-#include <LiriLogind/LiriLogind>
+#include <LiriAuroraLogind/Logind>
 
 #include "logindbackend.h"
 
 #include <unistd.h>
 
-using namespace Liri;
+using namespace Aurora::PlatformSupport;
 
 LogindBackend::LogindBackend()
     : SessionBackend()
 {
-    Liri::Logind *logind = Logind::instance();
+    Logind *logind = Logind::instance();
 
     connect(logind, &Logind::connectedChanged,
             this, &LogindBackend::handleConnectedChanged);
@@ -100,7 +100,7 @@ bool LogindBackend::exists()
 
 void LogindBackend::setupInhibitors()
 {
-    Liri::Logind *logind = Logind::instance();
+    Logind *logind = Logind::instance();
     logind->inhibit(
                 QStringLiteral("Liri/Sleep"),
                 QStringLiteral("Liri needs to logout before shutdown and lock the screen before sleep"),
