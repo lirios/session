@@ -38,6 +38,17 @@ void FakeBackend::setIdle(bool value)
     Q_UNUSED(value)
 }
 
+void FakeBackend::inhibitIdle(const QString &who, const QString &why)
+{
+    Q_UNUSED(who);
+    Q_UNUSED(why);
+}
+
+void FakeBackend::uninhibitIdle(int fd)
+{
+    Q_UNUSED(fd);
+}
+
 void FakeBackend::lockSession()
 {
 }

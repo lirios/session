@@ -24,8 +24,6 @@
 #include <QDBusConnection>
 #include <QDBusError>
 
-#include <LiriLogind/LiriLogind>
-
 #include "screensaver.h"
 #include "session.h"
 #include "backends/sessionbackend.h"
@@ -37,7 +35,7 @@ ScreenSaver::ScreenSaver(QObject *parent)
             this, &ScreenSaver::handleLock);
     connect(SessionBackend::instance(), &SessionBackend::sessionUnlocked,
             this, &ScreenSaver::handleUnlock);
-    connect(Liri::Logind::instance(), &Liri::Logind::inhibited,
+    connect(SessionBackend::instance(), &SessionBackend::inhibited,
             this, &ScreenSaver::handleInhibited);
 }
 
@@ -120,9 +118,7 @@ uint ScreenSaver::Inhibit(const QString &appName, const QString &reason)
 
     m_inhibit[newCookie] = InhibitEntry{ appName, reason };
 
-    Liri::Logind::instance()->inhibit(appName, reason,
-                                      Liri::Logind::InhibitIdle,
-                                      Liri::Logind::Block);
+    SessionBackend::instance()->inhibitIdle(appName, reason);
 
     return newCookie;
 }
@@ -132,7 +128,7 @@ void ScreenSaver::UnInhibit(uint cookie)
     int fd = m_inhibitFd.value(cookie, -1);
 
     if (fd != -1) {
-        Liri::Logind::instance()->uninhibit(fd);
+        SessionBackend::instance()->uninhibitIdle(fd);
 
         m_inhibit.remove(cookie);
         m_inhibitFd.remove(cookie);
