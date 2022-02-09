@@ -71,6 +71,18 @@ void LogindBackend::setIdle(bool value)
     Logind::instance()->setIdleHint(value);
 }
 
+void LogindBackend::inhibitIdle(const QString &who, const QString &why)
+{
+    Logind::instance()->inhibit(who, why,
+                                Logind::InhibitIdle,
+                                Logind::Block);
+}
+
+void LogindBackend::uninhibitIdle(int fd)
+{
+    Logind::instance()->uninhibit(fd);
+}
+
 void LogindBackend::lockSession()
 {
     Logind::instance()->lockSession();
@@ -124,6 +136,8 @@ void LogindBackend::handleInhibited(const QString &who, const QString &why, int 
     Q_UNUSED(why);
 
     m_fds[who] = fd;
+
+    Q_EMIT inhibited(who, why, fd);
 }
 
 void LogindBackend::handleUninhibited(int fd)

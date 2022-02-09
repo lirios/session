@@ -39,6 +39,9 @@ public:
 
     void setIdle(bool value);
 
+    void inhibitIdle(const QString &who, const QString &why) override;
+    void uninhibitIdle(int fd) override;
+
     void lockSession();
     void unlockSession();
 

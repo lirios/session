@@ -37,6 +37,9 @@ public:
 
     virtual void setIdle(bool value) = 0;
 
+    virtual void inhibitIdle(const QString &who, const QString &why) = 0;
+    virtual void uninhibitIdle(int fd) = 0;
+
     virtual void lockSession() = 0;
     virtual void unlockSession() = 0;
 
@@ -45,6 +48,7 @@ public:
     static SessionBackend *instance();
 
 Q_SIGNALS:
+    void inhibited(const QString &who, const QString &why, int fd);
     void sessionLocked();
     void sessionUnlocked();
     void shutdownRequested();
