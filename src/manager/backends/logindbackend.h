@@ -35,17 +35,17 @@ public:
     LogindBackend();
     ~LogindBackend();
 
-    QString name() const;
+    QString name() const override;
 
-    void setIdle(bool value);
+    void setIdle(bool value) override;
 
     void inhibitIdle(const QString &who, const QString &why) override;
     void uninhibitIdle(int fd) override;
 
-    void lockSession();
-    void unlockSession();
+    void lockSession() override;
+    void unlockSession() override;
 
-    void switchToVt(quint32 vt);
+    void switchToVt(quint32 vt) override;
 
     static bool exists();
 
