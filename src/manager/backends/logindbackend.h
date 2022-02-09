@@ -24,6 +24,8 @@
 #ifndef LOGINDBACKEND_H
 #define LOGINDBACKEND_H
 
+#include <QMap>
+
 #include "sessionbackend.h"
 
 class LogindBackend : public SessionBackend
@@ -45,8 +47,7 @@ public:
     static bool exists();
 
 private:
-    int m_powerButtonFd = -1;
-    int m_inhibitFd = -1;
+    QMap<QString, int> m_fds;
 
 private Q_SLOTS:
     void setupInhibitors();

@@ -53,19 +53,12 @@ LogindBackend::LogindBackend()
             this, &LogindBackend::handleSessionUnlocked);
 
     setupInhibitors();
-    logind->inhibit(
-                QStringLiteral("Liri/PowerButton"),
-                QStringLiteral("Liri handles the power button itself"),
-                Logind::InhibitPowerKey | Logind::InhibitSuspendKey | Logind::InhibitHibernateKey,
-                Logind::Block);
 }
 
 LogindBackend::~LogindBackend()
 {
-    if (m_powerButtonFd >= 0)
-        ::close(m_powerButtonFd);
-    if (m_inhibitFd >= 0)
-        ::close(m_inhibitFd);
+    for (const auto it = m_fds.cbegin(); it != m_fds.cend(); )
+        Logind::instance()->uninhibit(it.value());
 }
 
 QString LogindBackend::name() const
@@ -102,6 +95,11 @@ void LogindBackend::setupInhibitors()
 {
     Logind *logind = Logind::instance();
     logind->inhibit(
+                QStringLiteral("Liri/PowerButton"),
+                QStringLiteral("Liri handles the power button itself"),
+                Logind::InhibitPowerKey | Logind::InhibitSuspendKey | Logind::InhibitHibernateKey,
+                Logind::Block);
+    logind->inhibit(
                 QStringLiteral("Liri/Sleep"),
                 QStringLiteral("Liri needs to logout before shutdown and lock the screen before sleep"),
                 Logind::InhibitShutdown | Logind::InhibitSleep,
@@ -123,20 +121,16 @@ void LogindBackend::handleConnectedChanged(bool connected)
 
 void LogindBackend::handleInhibited(const QString &who, const QString &why, int fd)
 {
-    Q_UNUSED(why)
+    Q_UNUSED(why);
 
-    if (who == QStringLiteral("Liri/PowerButton"))
-        m_powerButtonFd = fd;
-    else if (who == QStringLiteral("Liri/Sleep"))
-        m_inhibitFd = fd;
+    m_fds[who] = fd;
 }
 
 void LogindBackend::handleUninhibited(int fd)
 {
-    if (m_powerButtonFd == fd)
-        m_powerButtonFd = -1;
-    else if (m_inhibitFd == fd)
-        m_inhibitFd = -1;
+    const auto who = m_fds.key(fd);
+    if (!who.isEmpty())
+        m_fds.remove(who);
 }
 
 void LogindBackend::prepareForSleep(bool arg)
@@ -155,15 +149,17 @@ void LogindBackend::prepareForShutdown(bool arg)
 
 void LogindBackend::handleSessionLocked()
 {
-    if (m_inhibitFd >= 0) {
-        ::close(m_inhibitFd);
-        m_inhibitFd = -1;
-    }
+    // Uninhibit everything when the session is locked
+    for (const auto it = m_fds.cbegin(); it != m_fds.cend(); )
+        Logind::instance()->uninhibit(it.value());
 
     emit sessionLocked();
 }
 
 void LogindBackend::handleSessionUnlocked()
 {
+    // Inhibit again when the session is unlocked
+    setupInhibitors();
+
     emit sessionUnlocked();
 }
