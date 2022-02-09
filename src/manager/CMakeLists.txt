@@ -31,8 +31,8 @@ if(LIRI_ENABLE_SYSTEMD)
     list(APPEND DEFINES "ENABLE_SYSTEMD")
 endif()
 
-if(NOT TARGET Liri::Logind)
-    find_package(Liri1Logind)
+if(NOT TARGET Liri::AuroraLogind)
+    find_package(Liri1AuroraLogind REQUIRED)
 endif()
 if(NOT TARGET Liri::Xdg)
     find_package(Liri1Xdg REQUIRED)
@@ -82,7 +82,7 @@ liri_add_executable(LiriSession
         Sigwatch
         Liri::Session
         Liri::SessionPrivate
-        Liri::Logind
+        Liri::AuroraLogind
         Liri::Xdg
         autostart
         services
