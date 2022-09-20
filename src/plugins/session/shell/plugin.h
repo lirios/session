@@ -52,10 +52,7 @@ private:
     QEventLoop *m_loop = nullptr;
     QDBusServiceWatcher *m_serviceWatcher = nullptr;
     QProcess *m_serverProcess = nullptr;
-    QProcess *m_helperProcess = nullptr;
     bool m_stopping = false;
-
-    void startShellHelper();
 
 private Q_SLOTS:
     void handleServiceRegistered(const QString &serviceName);
