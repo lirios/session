@@ -112,12 +112,6 @@ bool ShellPlugin::stop()
 {
     m_stopping = true;
 
-    if (m_helperProcess) {
-        m_helperProcess->terminate();
-        if (!m_helperProcess->waitForFinished())
-            m_helperProcess->kill();
-    }
-
     if (m_serverProcess) {
         m_serverProcess->terminate();
         if (!m_serverProcess->waitForFinished())
@@ -129,39 +123,12 @@ bool ShellPlugin::stop()
     return true;
 }
 
-void ShellPlugin::startShellHelper()
-{
-    m_helperProcess = new QProcess(this);
-    m_helperProcess->setProcessChannelMode(QProcess::ForwardedChannels);
-    m_helperProcess->setProgram(QString::asprintf("%s/liri-shell-helper", LIBEXECDIR));
-
-    connect(m_helperProcess, &QProcess::readyReadStandardOutput,
-            this, &ShellPlugin::handleStandardOutput);
-    connect(m_helperProcess, &QProcess::readyReadStandardError,
-            this, &ShellPlugin::handleStandardError);
-
-    m_helperProcess->start();
-    if (!m_helperProcess->waitForStarted()) {
-        // Can't continue without the helper
-        qCWarning(lcSession, "Can't start liri-shell-helper");
-        if (m_serverProcess) {
-            m_serverProcess->terminate();
-            if (!m_serverProcess->waitForFinished())
-                m_serverProcess->kill();
-        }
-        Q_EMIT shutdownRequested();
-    }
-}
-
 void ShellPlugin::handleServiceRegistered(const QString &serviceName)
 {
     if (serviceName == shellServiceName) {
         // We don't need to list for this signal
         disconnect(m_serviceWatcher, &QDBusServiceWatcher::serviceRegistered,
                    this, &ShellPlugin::handleServiceRegistered);
-
-        // Now start the helper
-        startShellHelper();
 
         // The shell D-Bus service is registered, this means it's ready
         // and we can move on to the next session module
