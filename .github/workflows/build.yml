@@ -21,4 +21,4 @@ jobs:
     uses: lirios/.github/.github/workflows/build-linux-qt5.yml@master
     with:
       dependencies: "umockdev-devel"
-      build_dependencies: "cmake-shared qtgsettings libliri aurora-scanner aurora-compositor"
+      build_dependencies: "cmake-shared qtgsettings libliri"

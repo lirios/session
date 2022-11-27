@@ -24,13 +24,10 @@
 #include <QDBusConnection>
 #include <QDBusConnectionInterface>
 
-#include <LiriAuroraLogind/Logind>
-
+#include "logind/logind.h"
 #include "logindbackend.h"
 
 #include <unistd.h>
-
-using namespace Aurora::PlatformSupport;
 
 LogindBackend::LogindBackend()
     : SessionBackend()

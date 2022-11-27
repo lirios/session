@@ -22,7 +22,6 @@ The following modules and their dependencies are required:
  * [cmake-shared](https://github.com/lirios/cmake-shared.git) >= 1.0.0
  * [qtgsettings](https://github.com/lirios/qtgsettings) >= 1.1.0
  * [libliri](https://github.com/lirios/libliri)
- * [aurora-compositor](https://github.com/lirios/aurora-compositor)
 
 ## Installation
 

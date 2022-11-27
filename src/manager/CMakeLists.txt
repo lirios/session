@@ -31,9 +31,6 @@ if(LIRI_ENABLE_SYSTEMD)
     list(APPEND DEFINES "ENABLE_SYSTEMD")
 endif()
 
-if(NOT TARGET Liri::AuroraLogind)
-    find_package(Liri1AuroraLogind REQUIRED)
-endif()
 if(NOT TARGET Liri::Xdg)
     find_package(Liri1Xdg REQUIRED)
 endif()
@@ -46,6 +43,8 @@ liri_add_executable(LiriSession
         backends/fakebackend.h
         backends/logindbackend.cpp
         backends/logindbackend.h
+        backends/logind/logind.cpp backends/logind/logind.h backends/logind/logind_p.h
+        backends/logind/logindtypes.cpp backends/logind/logindtypes_p.h
         backends/sessionbackend.cpp
         backends/sessionbackend.h
         dbus/processlauncher.cpp
@@ -82,7 +81,6 @@ liri_add_executable(LiriSession
         Sigwatch
         Liri::Session
         Liri::SessionPrivate
-        Liri::AuroraLogind
         Liri::Xdg
         autostart
         services
