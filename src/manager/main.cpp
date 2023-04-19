@@ -112,11 +112,28 @@ int main(int argc, char *argv[])
                 TR("list"));
     parser.addOption(disableModulesOption);
 
+    // List modules
+    QCommandLineOption listModulesOption(
+            QStringLiteral("list-modules"),
+            TR("List installed modules"));
+    parser.addOption(listModulesOption);
+
     // Parse command line
     parser.process(app);
 
     // Create the session manager
     QSharedPointer<Session> session(new Session);
+
+    // List modules and quit
+    if (parser.isSet(listModulesOption)) {
+        session->loadPlugins();
+
+        const auto moduleNames = session->moduleNames();
+        for (const auto &name : moduleNames)
+            qInfo("%s", qPrintable(name));
+
+        return 0;
+    }
 
     // Arguments
     const QStringList disabledModulesList = parser.value(disableModulesOption).trimmed().split(QLatin1Char(','));

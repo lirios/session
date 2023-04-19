@@ -54,10 +54,13 @@ public:
 
     bool requireDBusSession();
 
+    QStringList moduleNames() const;
+
     void disableModule(const QString &name);
     void setModuleArguments(const QString &name,
                             const QStringList &args);
 
+    void loadPlugins();
     bool initialize();
     bool start();
 

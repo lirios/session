@@ -120,6 +120,21 @@ bool Session::requireDBusSession()
     return true;
 }
 
+QStringList Session::moduleNames() const
+{
+    QStringList list;
+
+    const auto modules = m_modules.values();
+    for (const auto &modulesList : modules) {
+        for (const auto &module : modulesList) {
+            const auto name = m_pluginRegistry->getNameForInstance(module);
+            list.append(name);
+        }
+    }
+
+    return list;
+}
+
 void Session::disableModule(const QString &name)
 {
     m_disabledModules.append(name);
@@ -130,25 +145,8 @@ void Session::setModuleArguments(const QString &name, const QStringList &args)
     m_moduleArgs[name] = args;
 }
 
-bool Session::initialize()
+void Session::loadPlugins()
 {
-    // Print version information
-    qInfo("== Liri Session ==\n"
-          "** https://liri.io\n"
-          "** Bug reports to: https://github.com/lirios/session/issues\n"
-          "** Build: %s-%s",
-          LIRI_SESSION_VERSION, GIT_REV);
-
-    // Print OS information
-    qInfo("%s", qPrintable(Diagnostics::systemInformation().trimmed()));
-
-    // Register D-Bus objects
-    m_screenSaver->registerWithDBus();
-    if (!m_processLauncher->registerWithDBus())
-        return false;
-    if (!m_manager->registerWithDBus())
-        return false;
-
     // Discover plugins
     m_pluginRegistry->discover();
 
@@ -170,6 +168,29 @@ bool Session::initialize()
 
         m_modules[module->startupPhase()].append(module);
     }
+}
+
+bool Session::initialize()
+{
+    // Print version information
+    qInfo("== Liri Session ==\n"
+          "** https://liri.io\n"
+          "** Bug reports to: https://github.com/lirios/session/issues\n"
+          "** Build: %s-%s",
+          LIRI_SESSION_VERSION, GIT_REV);
+
+    // Print OS information
+    qInfo("%s", qPrintable(Diagnostics::systemInformation().trimmed()));
+
+    // Register D-Bus objects
+    m_screenSaver->registerWithDBus();
+    if (!m_processLauncher->registerWithDBus())
+        return false;
+    if (!m_manager->registerWithDBus())
+        return false;
+
+    // Load plugins
+    loadPlugins();
 
     return true;
 }
