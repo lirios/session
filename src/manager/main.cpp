@@ -153,11 +153,11 @@ int main(int argc, char *argv[])
     // Disable incompatible modules
     QSet<QString> disabledModules = disabledModulesList.toSet();
     if (systemdSupport) {
-        disabledModules.insert(QStringLiteral("io.liri.SessionManager.Modules.Services"));
-        disabledModules.insert(QStringLiteral("io.liri.SessionManager.Modules.Shell"));
+        disabledModules.insert(QStringLiteral("services"));
+        disabledModules.insert(QStringLiteral("shell"));
     } else {
         // Set shell arguments
-        session->setModuleArguments(QStringLiteral("io.liri.SessionManager.Modules.Shell"), shellArgs);
+        session->setModuleArguments(QStringLiteral("shell"), shellArgs);
     }
 
     // Disable modules

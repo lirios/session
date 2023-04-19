@@ -1,5 +1,5 @@
 {
-    "Id": "io.liri.SessionManager.Modules.Services",
+    "Id": "services",
     "Type": "SessionModule",
     "Version": "1.0.0",
     "Authors": [

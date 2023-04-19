@@ -1,5 +1,5 @@
 {
-    "Id": "io.liri.SessionManager.Modules.Autostart",
+    "Id": "autostart",
     "Type": "SessionModule",
     "Version": "1.0.0",
     "Authors": [
