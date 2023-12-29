@@ -17,7 +17,7 @@ on:
       - develop
 
 jobs:
-  linux-qt5:
+  linux-qt6:
     uses: lirios/.github/.github/workflows/build-linux-qt6.yml@master
     with:
       build_dependencies: "cmake-shared qtgsettings libliri"
