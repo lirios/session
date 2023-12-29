@@ -3,8 +3,8 @@
 
 ecm_add_qml_module(SessionQmlPlugin
     URI Liri.Session
+    VERSION 1.0
     CLASS_NAME SessionPlugin
-    TYPEINFO sessionplugin.qmltypes
     NO_GENERATE_PLUGIN_SOURCE
     DEPENDENCIES QtQuick
 )
@@ -14,11 +14,6 @@ target_sources(SessionQmlPlugin
         plugin.cpp
         qmllauncher.cpp qmllauncher.h
         qmlsessionmanager.cpp qmlsessionmanager.h
-)
-
-set_target_properties(SessionQmlPlugin
-    PROPERTIES
-        OUTPUT_NAME sessionplugin
 )
 
 target_link_libraries(SessionQmlPlugin
