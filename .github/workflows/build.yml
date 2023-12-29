@@ -18,7 +18,6 @@ on:
 
 jobs:
   linux-qt5:
-    uses: lirios/.github/.github/workflows/build-linux-qt5.yml@master
+    uses: lirios/.github/.github/workflows/build-linux-qt6.yml@master
     with:
-      dependencies: "umockdev-devel"
       build_dependencies: "cmake-shared qtgsettings libliri"
