@@ -151,7 +151,7 @@ int main(int argc, char *argv[])
     session->setSystemdEnabled(systemdSupport);
 
     // Disable incompatible modules
-    QSet<QString> disabledModules = disabledModulesList.toSet();
+    QSet<QString> disabledModules(disabledModulesList.begin(), disabledModulesList.end());
     if (systemdSupport) {
         disabledModules.insert(QStringLiteral("services"));
         disabledModules.insert(QStringLiteral("shell"));

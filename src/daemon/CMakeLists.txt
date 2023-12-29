@@ -1,46 +1,36 @@
-# Defines
-set(DEFINES "")
-if(LIRI_SESSION_DEVELOPMENT_BUILD)
-    list(APPEND DEFINES "DEVELOPMENT_BUILD")
-endif()
+qt6_add_dbus_adaptor(_dbus_sources io.liri.Daemon.xml daemoninterface.h)
+set(_sources
+    daemon.cpp daemon.h
+    daemoninterface.cpp daemoninterface.h
+    main.cpp
+    pluginregistry.cpp pluginregistry.h
+    ${_dbus_sources}
+)
+add_executable(LiriDaemon ${_sources})
 
-# Absolute paths
-if(IS_ABSOLUTE "${INSTALL_PLUGINSDIR}")
-    set(PLUGINSDIR "${INSTALL_PLUGINSDIR}")
-else()
-    set(PLUGINSDIR "${CMAKE_INSTALL_PREFIX}/${INSTALL_PLUGINSDIR}")
-endif()
+set_target_properties(LiriDaemon PROPERTIES OUTPUT_NAME liri-daemon)
 
-if(LIRI_ENABLE_SYSTEMD)
-    list(APPEND DEFINES "ENABLE_SYSTEMD")
-endif()
-
-liri_add_executable(LiriDaemon
-    OUTPUT_NAME
-        "liri-daemon"
-    SOURCES
-        daemon.cpp
-        daemon.h
-        daemoninterface.cpp
-        daemoninterface.h
-        main.cpp
-        pluginregistry.cpp
-        pluginregistry.h
-    DBUS_ADAPTOR_SOURCES
-        "${CMAKE_CURRENT_SOURCE_DIR}/io.liri.Daemon.xml"
-    DEFINES
-        QT_NO_CAST_FROM_ASCII
-        QT_NO_FOREACH
+target_compile_definitions(LiriDaemon
+    PRIVATE
         LIRI_DAEMON_VERSION="${PROJECT_VERSION}"
-        ${DEFINES}
-        PLUGINSDIR="${PLUGINSDIR}"
-    INSTALL_DIRECTORY
-        "${INSTALL_LIBEXECDIR}"
-    LIBRARIES
-        Qt5::Core
-        Qt5::DBus
+	PLUGINSDIR="${KDE_INSTALL_FULL_PLUGINSDIR}"
+)
+
+if(LIRI_SESSION_DEVELOPMENT_BUILD)
+    target_compile_definitions(LiriDaemon PRIVATE DEVELOPMENT_BUILD)
+endif()
+if(LIRI_ENABLE_SYSTEMD)
+    target_compile_definitions(LiriDaemon PRIVATE ENABLE_SYSTEMD)
+endif()
+
+target_link_libraries(LiriDaemon
+    PRIVATE
+        Qt6::Core
+        Qt6::DBus
         Sigwatch
         Liri::Daemon
 )
 
-liri_finalize_executable(LiriDaemon)
+install(TARGETS LiriDaemon
+        DESTINATION ${KDE_INSTALL_LIBEXECDIR}
+)

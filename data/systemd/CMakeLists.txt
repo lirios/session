@@ -1,13 +1,6 @@
-if(IS_ABSOLUTE "${INSTALL_BINDIR}")
-    set(ABSOLUTE_BINDIR "${INSTALL_BINDIR}")
-else()
-    set(ABSOLUTE_BINDIR "${CMAKE_INSTALL_PREFIX}/${INSTALL_BINDIR}")
-endif()
-if(IS_ABSOLUTE "${INSTALL_LIBEXECDIR}")
-    set(ABSOLUTE_LIBEXECDIR "${INSTALL_LIBEXECDIR}")
-else()
-    set(ABSOLUTE_LIBEXECDIR "${CMAKE_INSTALL_PREFIX}/${INSTALL_LIBEXECDIR}")
-endif()
+set(ABSOLUTE_BINDIR "${KDE_INSTALL_FULL_BINDIR}")
+set(ABSOLUTE_LIBEXECDIR "${KDE_INSTALL_FULL_LIBEXECDIR}")
+
 configure_file(
     "liri-daemon-locale.service.in"
     "${CMAKE_CURRENT_BINARY_DIR}/liri-daemon-locale.service"
@@ -28,5 +21,5 @@ install(
         "${CMAKE_CURRENT_BINARY_DIR}/liri-session-shutdown.service"
         liri-session.target
     DESTINATION
-        "${INSTALL_SYSTEMDUSERUNITDIR}"
+        "${KDE_INSTALL_SYSTEMDUSERUNITDIR}"
 )

@@ -24,7 +24,7 @@
 #include <QDBusConnection>
 #include <QDBusInterface>
 
-#include <Qt5GSettings/QGSettings>
+#include <Qt6GSettings/QGSettings>
 
 #include "plugin.h"
 

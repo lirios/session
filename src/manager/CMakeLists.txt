@@ -1,115 +1,90 @@
 # Translations
 file(GLOB TRANSLATIONS "${CMAKE_CURRENT_SOURCE_DIR}/../../translations/*_*.ts")
-qt5_add_translation(QM_FILES ${TRANSLATIONS})
+qt6_add_translation(QM_FILES ${TRANSLATIONS})
 install(FILES ${QM_FILES}
-        DESTINATION "${INSTALL_DATADIR}/liri-session/translations")
-
-# Defines
-set(DEFINES "")
-
-if(LIRI_SESSION_DEVELOPMENT_BUILD)
-    list(APPEND DEFINES "DEVELOPMENT_BUILD")
-endif()
-
-# Absolute paths
-if(IS_ABSOLUTE "${INSTALL_DATADIR}")
-    set(DATADIR "${INSTALL_DATADIR}")
-else()
-    set(DATADIR "${CMAKE_INSTALL_PREFIX}/${INSTALL_DATADIR}")
-endif()
-if(IS_ABSOLUTE "${INSTALL_PLUGINSDIR}")
-    set(PLUGINSDIR "${INSTALL_PLUGINSDIR}")
-else()
-    set(PLUGINSDIR "${CMAKE_INSTALL_PREFIX}/${INSTALL_PLUGINSDIR}")
-endif()
+        DESTINATION "${KDE_INSTALL_DATADIR}/liri-session/translations")
 
 # Git revision
 include(LiriCreateGitHeadRevisionFile)
 liri_create_git_head_revision_file("gitsha1.h")
 
-if(LIRI_ENABLE_SYSTEMD)
-    list(APPEND DEFINES "ENABLE_SYSTEMD")
-endif()
-
 if(NOT TARGET Liri::Xdg)
     find_package(Liri1Xdg REQUIRED)
 endif()
 
-liri_add_executable(LiriSession
-    OUTPUT_NAME
-        "liri-session"
-    SOURCES
-        backends/fakebackend.cpp
-        backends/fakebackend.h
-        backends/logindbackend.cpp
-        backends/logindbackend.h
-        backends/logind/logind.cpp backends/logind/logind.h backends/logind/logind_p.h
-        backends/logind/logindtypes.cpp backends/logind/logindtypes_p.h
-        backends/sessionbackend.cpp
-        backends/sessionbackend.h
-        dbus/processlauncher.cpp
-        dbus/processlauncher.h
-        dbus/screensaver.cpp
-        dbus/screensaver.h
-        dbus/sessionmanager.cpp
-        dbus/sessionmanager.h
-        diagnostics.cpp
-        diagnostics.h
-        main.cpp
-        pluginregistry.cpp
-        pluginregistry.h
-        session.cpp
-        session.h
-        systemdmanager.cpp
-        systemdmanager.h
-        utils.cpp
-        utils.h
-        ${QM_FILES}
-    DBUS_ADAPTOR_SOURCES
-        "${CMAKE_CURRENT_SOURCE_DIR}/dbus/io.liri.Launcher.xml"
-        "${CMAKE_CURRENT_SOURCE_DIR}/io.liri.SessionManager.xml"
-    DEFINES
-        QT_NO_CAST_FROM_ASCII
-        QT_NO_FOREACH
+qt6_add_dbus_adaptor(_dbus_sources dbus/io.liri.Launcher.xml dbus/processlauncher.h)
+qt6_add_dbus_adaptor(_dbus_sources io.liri.SessionManager.xml dbus/sessionmanager.h)
+
+set(_sources
+    backends/fakebackend.cpp backends/fakebackend.h
+    backends/logindbackend.cpp backends/logindbackend.h
+    backends/logind/logind.cpp backends/logind/logind.h backends/logind/logind_p.h
+    backends/logind/logindtypes.cpp backends/logind/logindtypes_p.h
+    backends/sessionbackend.cpp backends/sessionbackend.h
+    dbus/processlauncher.cpp dbus/processlauncher.h
+    dbus/screensaver.cpp dbus/screensaver.h
+    dbus/sessionmanager.cpp dbus/sessionmanager.h
+    diagnostics.cpp diagnostics.h
+    main.cpp
+    pluginregistry.cpp pluginregistry.h
+    session.cpp session.h
+    systemdmanager.cpp systemdmanager.h
+    utils.cpp utils.h
+    ${QM_FILES}
+    ${_dbus_sources}
+)
+
+add_executable(LiriSession ${_sources})
+
+set_target_properties(LiriSession PROPERTIES OUTPUT_NAME liri-session)
+
+target_compile_definitions(LiriSession
+    PRIVATE
         LIRI_SESSION_VERSION="${PROJECT_VERSION}"
-        ${DEFINES}
-        DATADIR="${DATADIR}"
-        PLUGINSDIR="${PLUGINSDIR}"
-    LIBRARIES
-        Qt5::Core
-        Qt5::DBus
+	DATADIR="${KDE_INSTALL_FULL_DATADIR}"
+	PLUGINSDIR="${KDE_INSTALL_FULL_PLUGINSDIR}"
+)
+
+if(LIRI_SESSION_DEVELOPMENT_BUILD)
+    target_compile_definitions(LiriSession PRIVATE DEVELOPMENT_BUILD)
+endif()
+if(LIRI_ENABLE_SYSTEMD)
+    target_compile_definitions(LiriSession PRIVATE ENABLE_SYSTEMD)
+endif()
+
+target_link_libraries(LiriSession
+    PRIVATE
+        Qt6::Core
+        Qt6::DBus
         Sigwatch
         Liri::Session
         Liri::SessionPrivate
         Liri::Xdg
-        autostart
-        services
-        shell
+        LiriSessionAutostartPlugin
+        LiriSessionServicesPlugin
+        LiriSessionShellPlugin
 )
 
-liri_finalize_executable(LiriSession)
+install(TARGETS LiriSession
+	DESTINATION ${KDE_INSTALL_BINDIR}
+)
 
-liri_add_executable(LiriSessionCtl
-    OUTPUT_NAME
-        "liri-session-ctl"
-    SOURCES
-        session-ctl.cpp
-    DEFINES
-        QT_NO_CAST_FROM_ASCII
-        QT_NO_FOREACH
+###
+
+add_executable(LiriSessionCtl session-ctl.cpp)
+
+target_compile_definitions(LiriSessionCtl
+    PRIVATE
         VERSION="${PROJECT_VERSION}"
-    LIBRARIES
-        Qt5::Core
-        Qt5::DBus
 )
 
-liri_finalize_executable(LiriSessionCtl)
+target_link_libraries(LiriSessionCtl
+    PRIVATE
+        Qt6::Core
+        Qt6::DBus
+)
 
-if(IS_ABSOLUTE "${INSTALL_BINDIR}")
-    set(BINDIR "${INSTALL_BINDIR}")
-else()
-    set(BINDIR "${CMAKE_INSTALL_PREFIX}/${INSTALL_BINDIR}")
-endif()
+set(BINDIR "${KDE_INSTALL_FULL_BINDIR}")
 configure_file(
     "liri.desktop.in"
     "${CMAKE_CURRENT_BINARY_DIR}/liri.desktop"
@@ -119,5 +94,5 @@ install(
     FILES
         "${CMAKE_CURRENT_BINARY_DIR}/liri.desktop"
     DESTINATION
-        "${INSTALL_DATADIR}/wayland-sessions"
+        "${KDE_INSTALL_DATADIR}/wayland-sessions"
 )

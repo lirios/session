@@ -6,12 +6,12 @@ install(
         liri-system.directory
         liri-work.directory
     DESTINATION
-        "${INSTALL_DATADIR}/desktop-directories"
+        "${KDE_INSTALL_DATADIR}/desktop-directories"
 )
 
 install(
     FILES
         liri-applications.menu
     DESTINATION
-        "${INSTALL_SYSCONFDIR}/xdg/menus"
+        "${KDE_INSTALL_SYSCONFDIR}/xdg/menus"
 )

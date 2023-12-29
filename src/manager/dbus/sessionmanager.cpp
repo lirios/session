@@ -26,7 +26,7 @@
 #include "backends/sessionbackend.h"
 #include "session.h"
 #include "sessionmanager.h"
-#include "sessionmanager_adaptor.h"
+#include "sessionmanageradaptor.h"
 
 const QString serviceName = QStringLiteral("io.liri.SessionManager");
 const QString objectPath = QStringLiteral("/io/liri/SessionManager");

@@ -1,23 +1,23 @@
-if(IS_ABSOLUTE "${INSTALL_LIBEXECDIR}")
-    set(LIBEXECDIR "${INSTALL_LIBEXECDIR}")
-else()
-    set(LIBEXECDIR "${CMAKE_INSTALL_PREFIX}/${INSTALL_LIBEXECDIR}")
-endif()
-
-liri_add_plugin(shell
-    TYPE
-        liri/sessionmodules
-    SOURCES
-        plugin.cpp
-        plugin.h
-    DEFINES
-        QT_NO_CAST_FROM_ASCII
-        QT_NO_FOREACH
-        LIBEXECDIR="${LIBEXECDIR}"
-    LIBRARIES
-        Qt5::DBus
-        Liri::Session
+qt6_add_plugin(LiriSessionShellPlugin
     STATIC
+    CLASS_NAME ShellPlugin
+    MANUAL_FINALIZATION
+    plugin.cpp plugin.h
 )
 
-liri_finalize_plugin(shell)
+#set_target_properties(LiriSessionShellPlugin PROPERTIES OUTPUT_NAME shell)
+
+target_compile_definitions(LiriSessionShellPlugin PRIVATE LIBEXECDIR="${KDE_INSTALL_FULL_LIBEXECDIR}")
+
+target_link_libraries(LiriSessionShellPlugin
+    PRIVATE
+        Qt6::DBus
+        Liri::Session
+)
+
+qt6_finalize_target(LiriSessionShellPlugin)
+
+install(
+    TARGETS LiriSessionShellPlugin
+    DESTINATION ${KDE_INSTALL_PLUGINDIR}/liri/sessionmodules
+)

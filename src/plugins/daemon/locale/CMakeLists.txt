@@ -1,19 +1,25 @@
-if(NOT TARGET Liri::Qt5GSettings)
-    find_package(Qt5GSettings REQUIRED)
+if(NOT TARGET Liri::Qt6GSettings)
+    find_package(Qt6GSettings REQUIRED)
 endif()
 
-liri_add_plugin(locale
-    TYPE
-        liri/daemon
-    SOURCES
-        plugin.cpp
-        plugin.h
-    DEFINES
-        QT_NO_CAST_FROM_ASCII
-        QT_NO_FOREACH
-    LIBRARIES
-        Liri::Daemon
-        Liri::Qt5GSettings
+qt6_add_plugin(LiriDaemonLocalePlugin
+    STATIC
+    CLASS_NAME LocalePlugin
+    MANUAL_FINALIZATION
+    plugin.cpp plugin.h
 )
 
-liri_finalize_plugin(locale)
+set_target_properties(LiriDaemonLocalePlugin PROPERTIES OUTPUT_NAME locale)
+
+target_link_libraries(LiriDaemonLocalePlugin
+    PRIVATE
+        Liri::Daemon
+        Liri::Qt6GSettings
+)
+
+qt6_finalize_target(LiriDaemonLocalePlugin)
+
+install(
+    TARGETS LiriDaemonLocalePlugin
+    DESTINATION ${KDE_INSTALL_PLUGINDIR}/liri/daemon
+)

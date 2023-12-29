@@ -2,20 +2,25 @@ if(NOT TARGET Liri::Xdg)
     find_package(Liri1Xdg REQUIRED)
 endif()
 
-liri_add_plugin(autostart
-    TYPE
-        liri/sessionmodules
-    SOURCES
-        plugin.cpp
-        plugin.h
-    DEFINES
-        QT_NO_CAST_FROM_ASCII
-        QT_NO_FOREACH
-    LIBRARIES
-        Qt5::DBus
-        Liri::Session
-        Liri::Xdg
+qt6_add_plugin(LiriSessionAutostartPlugin
     STATIC
+    CLASS_NAME AutostartPlugin
+    MANUAL_FINALIZATION
+    plugin.cpp plugin.h
 )
 
-liri_finalize_plugin(autostart)
+#set_target_properties(LiriSessionAutostartPlugin PROPERTIES OUTPUT_NAME autostart)
+
+target_link_libraries(LiriSessionAutostartPlugin
+    PRIVATE
+        Qt6::DBus
+        Liri::Session
+        Liri::Xdg
+)
+
+qt6_finalize_target(LiriSessionAutostartPlugin)
+
+install(
+    TARGETS LiriSessionAutostartPlugin
+    DESTINATION ${KDE_INSTALL_PLUGINDIR}/liri/sessionmodules
+)

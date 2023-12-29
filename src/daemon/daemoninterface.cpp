@@ -25,7 +25,7 @@
 
 #include "daemon.h"
 #include "daemoninterface.h"
-#include "daemon_adaptor.h"
+#include "daemonadaptor.h"
 
 #define SERVICE_NAME QStringLiteral("io.liri.Daemon")
 #define OBJECT_PATH QStringLiteral("/io/liri/Daemon")
