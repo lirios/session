@@ -44,22 +44,7 @@ list(APPEND CMAKE_MODULE_PATH "${LCS_MODULE_PATH}")
 include(LiriSetup)
 
 ## Features:
-option(LIRI_SESSION_DEVELOPMENT_BUILD "Development build" OFF)
-add_feature_info("Session::DevelopmentBuild" LIRI_SESSION_DEVELOPMENT_BUILD "Build for development")
-option(LIRI_ENABLE_SYSTEMD "Enable systemd support" ON)
-add_feature_info("Liri::Systemd" LIRI_ENABLE_SYSTEMD "Enable systemd support")
-
-## Find Qt:
-set(QT_MIN_VERSION "6.6.0")
-find_package(Qt6 "${QT_MIN_VERSION}"
-    REQUIRED
-    COMPONENTS
-        Core
-        DBus
-        Xml
-        Gui
-        LinguistTools
-)
+include(features.cmake)
 
 ## Add subdirectories:
 add_subdirectory(data/menu)
