@@ -56,20 +56,9 @@ static void setupEnvironment()
     qputenv("XDG_SESSION_DESKTOP", "liri");
 
     // Set environment for the programs we will launch from here
-#if QT_VERSION >= QT_VERSION_CHECK(5, 11, 0)
-    qputenv("QT_QPA_PLATFORM", "wayland;xcb");
-#else
     qputenv("QT_QPA_PLATFORM", "wayland");
-#endif
     qputenv("QT_QPA_PLATFORMTHEME", "liri");
-    qputenv("QT_WAYLAND_SHELL_INTEGRATION", "xdg-shell");
-    qputenv("QT_QUICK_CONTROLS_1_STYLE", "Flat");
-    qputenv("QT_QUICK_CONTROLS_STYLE", "material");
-    qputenv("QT_WAYLAND_DECORATION", "material");
-    qputenv("QT_AUTO_SCREEN_SCALE_FACTOR", "1");
     qputenv("XCURSOR_THEME", "Paper");
-    qunsetenv("QT_SCALE_FACTOR");
-    qunsetenv("QT_SCREEN_SCALE_FACTORS");
 }
 
 int main(int argc, char *argv[])
