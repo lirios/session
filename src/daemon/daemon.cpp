@@ -125,7 +125,7 @@ void Daemon::start()
         return;
 
     // Start all modules
-    for (auto *module : qAsConst(m_modules)) {
+    for (auto *module : std::as_const(m_modules)) {
         auto name = m_pluginRegistry->getNameForInstance(module);
         if (!module) {
             qCWarning(lcDaemon, "Ignoring invalid session module \"%s\"",
@@ -153,7 +153,7 @@ void Daemon::shutdown()
 
     // Stop modules
     std::reverse(m_loadedModules.begin(), m_loadedModules.end());
-    for (auto *module : qAsConst(m_loadedModules)) {
+    for (auto *module : std::as_const(m_loadedModules)) {
         auto *instance = dynamic_cast<QObject *>(module);
         const auto name = m_pluginRegistry->getNameForInstance(instance);
 

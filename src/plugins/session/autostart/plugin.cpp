@@ -79,7 +79,7 @@ bool AutostartPlugin::stop()
 {
     std::reverse(m_desktopFiles.begin(), m_desktopFiles.end());
 
-    for (const auto &fileName : qAsConst(m_desktopFiles)) {
+    for (const auto &fileName : std::as_const(m_desktopFiles)) {
         qCDebug(lcSession) << "Terminate autostart entry from" << fileName;
         terminateDesktopFile(fileName);
     }

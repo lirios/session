@@ -286,7 +286,7 @@ bool LogindPrivate::getUserSession(DBusUserSession &session) const
         // existing session for the user.
         bool found = false;
         DBusUserSessionVector sessions = qdbus_cast<DBusUserSessionVector>(reply.value().value<QDBusArgument>());
-        for (const auto &curSession : qAsConst(sessions)) {
+        for (const auto &curSession : std::as_const(sessions)) {
             const QString type = getSessionType(curSession.id, curSession.objectPath.path());
             const QString state = getSessionState(curSession.id, curSession.objectPath.path());
 
