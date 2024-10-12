@@ -279,7 +279,7 @@ void Session::shutdown()
 
     // Stop modules
     std::reverse(m_loadedModules.begin(), m_loadedModules.end());
-    for (auto module : qAsConst(m_loadedModules)) {
+    for (auto module : std::as_const(m_loadedModules)) {
         auto instance = dynamic_cast<QObject *>(module);
         const auto name = m_pluginRegistry->getNameForInstance(instance);
 
