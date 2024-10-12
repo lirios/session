@@ -36,6 +36,9 @@ include(ECMQmlModule)
 ## Disable use of C++ API deprecated in Qt 5.15
 add_compile_definitions(QT_DISABLE_DEPRECATED_UP_TO=0x050F00)
 
+## Enable -Werror by default:
+add_compile_options(-Werror)
+
 ## Shared macros and functions:
 if(NOT LIRI_LOCAL_ECM)
     find_package(LiriCMakeShared "2.0.99" REQUIRED NO_MODULE)
